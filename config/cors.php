@@ -11,7 +11,10 @@ return [
         env('FRONTEND_URL'),
     ]),
 
-    'allowed_origins_patterns' => [],
+    // Acepta cualquier despliegue de Vercel del proyecto (production y previews)
+    'allowed_origins_patterns' => [
+        '#^https://art-hub-front.*\.vercel\.app$#',
+    ],
 
     'allowed_headers' => ['*'],
 
