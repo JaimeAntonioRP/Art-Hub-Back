@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ArtistController;
 use App\Http\Controllers\Api\ArtworkController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TransactionController;
@@ -12,6 +13,9 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/artworks', [ArtworkController::class, 'index']);
 Route::get('/artworks/{id}', [ArtworkController::class, 'show']);
+
+Route::get('/artists', [ArtistController::class, 'index']);
+Route::get('/artists/{slug}', [ArtistController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -26,4 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/verify', [ValidationController::class, 'verify']);
 
     Route::post('/purchase', [TransactionController::class, 'purchase']);
+
+    Route::post('/artists', [ArtistController::class, 'store']);
+    Route::put('/artists/{id}', [ArtistController::class, 'update']);
+    Route::delete('/artists/{id}', [ArtistController::class, 'destroy']);
 });
