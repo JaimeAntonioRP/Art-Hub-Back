@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Setting extends Model
+{
+    protected $fillable = ['key', 'value'];
+
+    /** Devuelve todos los settings como un mapa key => value */
+    public static function map(): array
+    {
+        return self::query()->pluck('value', 'key')->all();
+    }
+}

@@ -52,7 +52,7 @@ class ArtistController extends Controller
             'death_year'        => 'nullable|integer|min:1800|max:2100',
             'specialty'         => 'required|string|max:255',
             'bio'               => 'required|string',
-            'profile_image_url' => 'required|url|max:2048',
+            'profile_image_url' => ['required', 'string', 'max:2048', 'regex:#^(https?://|/)#'],
             'featured'          => 'boolean',
         ]);
 
@@ -77,7 +77,7 @@ class ArtistController extends Controller
             'death_year'        => 'nullable|integer|min:1800|max:2100',
             'specialty'         => 'sometimes|string|max:255',
             'bio'               => 'sometimes|string',
-            'profile_image_url' => 'sometimes|url|max:2048',
+            'profile_image_url' => ['sometimes', 'string', 'max:2048', 'regex:#^(https?://|/)#'],
             'featured'          => 'boolean',
         ]);
 
