@@ -20,13 +20,20 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-script
 # Copia el resto del proyecto
 COPY . .
 RUN composer dump-autoload --optimize \
+    && mkdir -p storage/app/public/artworks \
+               storage/app/public/models \
+               storage/framework/sessions \
+               storage/framework/views \
+               storage/framework/cache \
+               bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
 # Render asigna el puerto vía $PORT
 ENV PORT=8000
 EXPOSE 8000
 
-# Al arrancar: migra, siembra y sirve la API
+# Al arrancar: migra, siembra, symlink storage y sirve la API
 CMD php artisan migrate --force \
  && php artisan db:seed --force \
+ && php artisan storage:link --force \
  && php artisan serve --host=0.0.0.0 --port=${PORT}
