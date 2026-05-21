@@ -22,18 +22,21 @@ class DatabaseSeeder extends Seeder
 
     private function seedJaimeCollection(): void
     {
-        $artistName = 'Jaime Antonio Rodriguez';
+        // elimina el artista antiguo si quedó del seeder anterior
+        Artist::where('slug', 'jaime-antonio-rodriguez')->delete();
+
+        $artistName = 'Augusto Garcia Peñalva';
 
         Artist::updateOrCreate(
-            ['slug' => 'jaime-antonio-rodriguez'],
+            ['slug' => 'augusto-garcia-penalva'],
             [
                 'name'              => $artistName,
                 'origin'            => 'Cusco, Perú',
-                'birth_year'        => 2002,
+                'birth_year'        => 1985,
                 'death_year'        => null,
                 'specialty'         => 'Arte contemporáneo andino, Pintura y escultura 3D',
-                'bio'               => 'Jaime Antonio Rodriguez es un artista y tecnólogo cusqueño que fusiona la tradición pictórica andina con herramientas digitales y modelado 3D. Su obra explora la identidad, la maternidad, la naturaleza de los Apus y la vida comunitaria del Cusco a través de una paleta cálida y composiciones íntimas. Cada pieza está certificada biométricamente y varias cuentan con su versión tridimensional explorable en realidad aumentada.',
-                'profile_image_url' => '/equipo/jaime.png',
+                'bio'               => 'Augusto Garcia Peñalva es un artista cusqueño que fusiona la tradición pictórica andina con herramientas digitales y modelado 3D. Su obra explora la identidad, la maternidad, la naturaleza de los Apus y la vida comunitaria del Cusco a través de una paleta cálida y composiciones íntimas. Cada pieza está certificada biométricamente y varias cuentan con su versión tridimensional explorable en realidad aumentada.',
+                'profile_image_url' => '/equipo/augusto.png',
                 'featured'          => true,
             ],
         );
