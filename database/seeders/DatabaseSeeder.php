@@ -22,10 +22,13 @@ class DatabaseSeeder extends Seeder
 
     private function seedJaimeCollection(): void
     {
-        // elimina cualquier entrada antigua de Jaime Antonio
+        // elimina TODAS las variantes antiguas (Jaime o Augusto mal creado)
+        // para garantizar que solo quede UNA entrada limpia
         Artist::where('slug', 'jaime-antonio-rodriguez')
                ->orWhere('slug', 'jaime-antonio-rodriguez-phillco')
+               ->orWhere('slug', 'augusto-garcia-penalva')
                ->orWhere('name', 'like', '%Jaime Antonio%')
+               ->orWhere('name', 'like', '%Augusto Garcia%')
                ->delete();
 
         $artistName = 'Augusto Garcia Peñalva';
