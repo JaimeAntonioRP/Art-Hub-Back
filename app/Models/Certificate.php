@@ -13,6 +13,7 @@ class Certificate extends Model
         'match_percentage',
         'blockchain_tx_id',
         'contract_address',
+        'verification_token',
     ];
 
     public function artwork(): BelongsTo

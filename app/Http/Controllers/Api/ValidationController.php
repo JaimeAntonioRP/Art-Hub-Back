@@ -16,6 +16,17 @@ use Throwable;
 
 class ValidationController extends Controller
 {
+    /** Búsqueda pública de certificado por verification_token */
+    public function showByToken(string $token): JsonResponse
+    {
+        $certificate = Certificate::with('artwork')->where('verification_token', $token)->firstOrFail();
+
+        return response()->json([
+            'certificate' => $certificate,
+            'artwork' => $certificate->artwork,
+        ]);
+    }
+
     public function verify(VerifyRequest $request): JsonResponse
     {
         $artwork = Artwork::findOrFail($request->input('artwork_id'));
@@ -29,13 +40,14 @@ class ValidationController extends Controller
             $result = $this->simulatedResult($artwork, $image->getRealPath());
         }
 
-        $certificate = Certificate::updateOrCreate(
-            ['artwork_id' => $artwork->id],
-            [
-                'biometric_hash' => $result['biometric_hash'] ?? hash_file('sha256', $image->getRealPath()),
-                'match_percentage' => $result['match_percentage'] ?? 0,
-            ],
-        );
+        $cert = Certificate::firstOrNew(['artwork_id' => $artwork->id]);
+        $cert->biometric_hash = $result['biometric_hash'] ?? hash_file('sha256', $image->getRealPath());
+        $cert->match_percentage = $result['match_percentage'] ?? 0;
+        if (! $cert->verification_token) {
+            $cert->verification_token = Str::uuid()->toString();
+        }
+        $cert->save();
+        $certificate = $cert;
 
         $matchPercentage = (float) $certificate->match_percentage;
 

@@ -19,6 +19,7 @@ Route::get('/artists', [ArtistController::class, 'index']);
 Route::get('/artists/{slug}', [ArtistController::class, 'show']);
 
 Route::get('/settings', [SettingController::class, 'index']);
+Route::get('/certificates/{token}', [ValidationController::class, 'showByToken']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -29,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/artworks/{id}', [ArtworkController::class, 'update']);
     Route::delete('/artworks/{id}', [ArtworkController::class, 'destroy']);
     Route::post('/uploads/image', [UploadController::class, 'image']);
+    Route::post('/uploads/model', [UploadController::class, 'model']);
 
     Route::post('/verify', [ValidationController::class, 'verify']);
 
