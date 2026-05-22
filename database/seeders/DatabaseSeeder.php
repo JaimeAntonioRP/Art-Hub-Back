@@ -290,6 +290,14 @@ class DatabaseSeeder extends Seeder
 
     private function seedArtworks(): void
     {
+        // Elimina todas las obras que NO son de Augusto Garcia Peñalva
+        // (eran placeholders sin imagen real)
+        Artwork::where('artist_name', '!=', 'Augusto Garcia Peñalva')->delete();
+    }
+
+    private function seedArtworksLegacy(): void
+    {
+        // método desactivado — conservado solo para referencia
         $catalog = [
             [
                 'title'          => 'Procesion del Senor de los Temblores',
