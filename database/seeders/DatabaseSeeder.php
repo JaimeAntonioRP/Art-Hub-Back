@@ -47,36 +47,39 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
-        // [slug, título, precio, match%, blockchain, tiene3D, descripción]
+        // [slug, título, precio, match%, blockchain, tiene3D, descripción, técnica, año, dimensiones]
         $collection = [
-            ['confidencias-al-viento', 'Confidencias al Viento', 8200, 97.4, true, true, 'Dos figuras comparten un secreto mientras el viento andino arrastra sus palabras hacia los cerros. Óleo de tonos cálidos con versión 3D explorable.'],
-            ['ecos-de-la-montana', 'Ecos de la Montaña', 9600, 96.1, true, true, 'La montaña responde al canto de quienes la habitan. Composición que captura la resonancia espiritual del paisaje cusqueño. Incluye modelo 3D.'],
-            ['el-calor-de-la-hermandad', 'El Calor de la Hermandad', 6400, 92.8, false, false, 'Retrato de la unión comunitaria andina, donde el abrazo colectivo es refugio frente al frío de las alturas.'],
-            ['el-latido-del-reposo', 'El Latido del Reposo', 7800, 95.5, true, true, 'El descanso como acto sagrado. Una figura en reposo cuyo pulso late al ritmo de la tierra. Versión tridimensional disponible.'],
-            ['el-primer-fruto-de-la-tierra', 'El Primer Fruto de la Tierra', 7100, 93.6, false, false, 'Celebración de la primera cosecha, ofrenda y gratitud a la Pachamama por la abundancia.'],
-            ['el-reposo-del-caminante', 'El Reposo del Caminante', 6900, 91.2, false, false, 'El viajero andino encuentra una pausa en su largo camino por los senderos del Valle Sagrado.'],
-            ['el-tejido-sagrado', 'El Tejido Sagrado', 10400, 98.2, true, false, 'Las manos de la tejedora entrelazan memoria, identidad y cosmovisión en cada hilo del telar ancestral.'],
-            ['furia-sangre-y-tradicion', 'Furia, Sangre y Tradición', 11800, 96.9, true, false, 'La intensidad del rito y la danza guerrera andina, donde la tradición se vive con el cuerpo y el alma.'],
-            ['hijas-del-apu', 'Hijas del Apu', 9200, 97.0, true, true, 'Las mujeres protegidas por el espíritu de la montaña sagrada. Obra central de la serie, con modelo 3D.'],
-            ['madre-cusquena', 'Madre Cusqueña', 12500, 99.1, true, true, 'La maternidad andina retratada con ternura y fuerza. Pieza emblemática de la colección, explorable en 3D y AR.'],
-            ['melancolia-entre-las-cuerdas', 'Melancolía entre las Cuerdas', 7400, 94.3, false, false, 'El músico solitario y su instrumento comparten una pena silenciosa bajo el cielo del altiplano.'],
-            ['ofrenda-de-la-tierra', 'Ofrenda de la Tierra', 6800, 92.0, false, false, 'Manos campesinas ofrecen los dones del suelo en un gesto de reciprocidad con la naturaleza.'],
-            ['piedad-cusquena', 'Piedad Cusqueña', 13200, 98.7, true, false, 'Reinterpretación andina de la piedad clásica, fusionando el dolor universal con la espiritualidad del Cusco.'],
-            ['pureza-al-descubierto', 'Pureza al Descubierto', 8600, 95.0, false, false, 'Estudio de la inocencia y la verdad sin máscaras, en una composición de luz delicada.'],
-            ['refugio-de-paz', 'Refugio de Paz', 7000, 93.1, false, false, 'Un rincón de serenidad en medio del bullicio del mundo, donde el alma encuentra calma.'],
-            ['semilla-de-vida', 'Semilla de Vida', 6600, 91.8, false, false, 'El origen de todo: la pequeña semilla que guarda en sí la promesa de la existencia.'],
-            ['semilla-y-raiz', 'Semilla y Raíz', 6700, 92.5, false, false, 'Diálogo entre lo que germina y lo que sostiene; la conexión profunda con los ancestros.'],
-            ['sueno-entre-apus', 'Sueño entre Apus', 9900, 96.4, true, false, 'Un descanso onírico abrazado por las montañas tutelares del Cusco, guardianas del sueño.'],
-            ['vuelo-compartido', 'Vuelo Compartido', 8800, 95.7, false, false, 'Dos espíritus que se elevan juntos, símbolo de la libertad y el acompañamiento mutuo.'],
+            ['confidencias-al-viento',      'Confidencias al Viento',        8200,  97.4, true,  true,  'Dos figuras comparten un secreto mientras el viento andino arrastra sus palabras hacia los cerros. Óleo de tonos cálidos con versión 3D explorable.',                              'Óleo sobre lienzo · Modelado 3D',          2023, '90 × 120 cm'],
+            ['ecos-de-la-montana',          'Ecos de la Montaña',            9600,  96.1, true,  true,  'La montaña responde al canto de quienes la habitan. Composición que captura la resonancia espiritual del paisaje cusqueño. Incluye modelo 3D.',                                 'Óleo sobre lienzo · Modelado 3D',          2022, '100 × 130 cm'],
+            ['el-calor-de-la-hermandad',    'El Calor de la Hermandad',      6400,  92.8, false, false, 'Retrato de la unión comunitaria andina, donde el abrazo colectivo es refugio frente al frío de las alturas.',                                                                     'Técnica mixta andina',                     2021, '80 × 100 cm'],
+            ['el-latido-del-reposo',        'El Latido del Reposo',          7800,  95.5, true,  true,  'El descanso como acto sagrado. Una figura en reposo cuyo pulso late al ritmo de la tierra. Versión tridimensional disponible.',                                                  'Óleo sobre lienzo · Modelado 3D',          2023, '85 × 110 cm'],
+            ['el-primer-fruto-de-la-tierra','El Primer Fruto de la Tierra',  7100,  93.6, false, false, 'Celebración de la primera cosecha, ofrenda y gratitud a la Pachamama por la abundancia.',                                                                                       'Acrílico sobre tela',                      2020, '70 × 90 cm'],
+            ['el-reposo-del-caminante',     'El Reposo del Caminante',       6900,  91.2, false, false, 'El viajero andino encuentra una pausa en su largo camino por los senderos del Valle Sagrado.',                                                                                   'Acrílico sobre tela',                      2021, '75 × 95 cm'],
+            ['el-tejido-sagrado',           'El Tejido Sagrado',            10400,  98.2, true,  false, 'Las manos de la tejedora entrelazan memoria, identidad y cosmovisión en cada hilo del telar ancestral.',                                                                          'Óleo y pan de oro sobre lienzo',           2022, '100 × 100 cm'],
+            ['furia-sangre-y-tradicion',    'Furia, Sangre y Tradición',    11800,  96.9, true,  false, 'La intensidad del rito y la danza guerrera andina, donde la tradición se vive con el cuerpo y el alma.',                                                                          'Técnica mixta andina',                     2023, '110 × 140 cm'],
+            ['hijas-del-apu',               'Hijas del Apu',                 9200,  97.0, true,  true,  'Las mujeres protegidas por el espíritu de la montaña sagrada. Obra central de la serie, con modelo 3D.',                                                                          'Óleo sobre lienzo · Modelado 3D',          2022, '95 × 120 cm'],
+            ['madre-cusquena',              'Madre Cusqueña',               12500,  99.1, true,  true,  'La maternidad andina retratada con ternura y fuerza. Pieza emblemática de la colección, explorable en 3D y AR.',                                                                  'Óleo sobre lienzo · Modelado 3D',          2024, '120 × 150 cm'],
+            ['melancolia-entre-las-cuerdas','Melancolía entre las Cuerdas',  7400,  94.3, false, false, 'El músico solitario y su instrumento comparten una pena silenciosa bajo el cielo del altiplano.',                                                                                 'Acrílico sobre tela',                      2021, '80 × 100 cm'],
+            ['ofrenda-de-la-tierra',        'Ofrenda de la Tierra',          6800,  92.0, false, false, 'Manos campesinas ofrecen los dones del suelo en un gesto de reciprocidad con la naturaleza.',                                                                                     'Técnica mixta andina',                     2020, '70 × 90 cm'],
+            ['piedad-cusquena',             'Piedad Cusqueña',              13200,  98.7, true,  false, 'Reinterpretación andina de la piedad clásica, fusionando el dolor universal con la espiritualidad del Cusco.',                                                                    'Óleo sobre lienzo',                        2024, '130 × 160 cm'],
+            ['pureza-al-descubierto',       'Pureza al Descubierto',         8600,  95.0, false, false, 'Estudio de la inocencia y la verdad sin máscaras, en una composición de luz delicada.',                                                                                           'Acrílico sobre lienzo',                    2022, '80 × 100 cm'],
+            ['refugio-de-paz',              'Refugio de Paz',                7000,  93.1, false, false, 'Un rincón de serenidad en medio del bullicio del mundo, donde el alma encuentra calma.',                                                                                          'Acrílico sobre tela',                      2021, '75 × 95 cm'],
+            ['semilla-de-vida',             'Semilla de Vida',               6600,  91.8, false, false, 'El origen de todo: la pequeña semilla que guarda en sí la promesa de la existencia.',                                                                                             'Técnica mixta andina',                     2020, '60 × 80 cm'],
+            ['semilla-y-raiz',              'Semilla y Raíz',                6700,  92.5, false, false, 'Diálogo entre lo que germina y lo que sostiene; la conexión profunda con los ancestros.',                                                                                         'Técnica mixta andina',                     2021, '65 × 85 cm'],
+            ['sueno-entre-apus',            'Sueño entre Apus',              9900,  96.4, true,  false, 'Un descanso onírico abrazado por las montañas tutelares del Cusco, guardianas del sueño.',                                                                                        'Óleo sobre lienzo',                        2023, '100 × 120 cm'],
+            ['vuelo-compartido',            'Vuelo Compartido',              8800,  95.7, false, false, 'Dos espíritus que se elevan juntos, símbolo de la libertad y el acompañamiento mutuo.',                                                                                           'Acrílico sobre lienzo',                    2022, '90 × 110 cm'],
         ];
 
-        foreach ($collection as [$slug, $title, $price, $match, $hasChain, $has3d, $desc]) {
+        foreach ($collection as [$slug, $title, $price, $match, $hasChain, $has3d, $desc, $technique, $year, $dimensions]) {
             $artwork = Artwork::updateOrCreate(
                 ['title' => $title],
                 [
                     'artist_name'  => $artistName,
                     'price'        => $price,
                     'description'  => $desc,
+                    'technique'    => $technique,
+                    'year'         => $year,
+                    'dimensions'   => $dimensions,
                     'image_url'    => '/obras/'.$slug.'.jpg',
                     'model_3d_url' => $has3d ? '/3d/'.$slug.'.glb' : null,
                     'status'       => 'available',
