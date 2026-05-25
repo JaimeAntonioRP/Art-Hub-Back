@@ -14,6 +14,7 @@ class Certificate extends Model
         'blockchain_tx_id',
         'contract_address',
         'verification_token',
+        'status',
     ];
 
     public function artwork(): BelongsTo
