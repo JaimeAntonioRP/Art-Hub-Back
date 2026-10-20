@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.app')
+@extends('admin.layouts.app')
 
 @section('page-title', isset($obra) ? 'Editar obra' : 'Nueva obra')
 
@@ -52,15 +52,25 @@
             </div>
             <div class="form-group">
                 <label>Dimensiones</label>
-                <input type="text" name="dimensions" placeholder="ej. 60x90 cm"
+                <input type="text" name="dimensions" placeholder="alto × ancho, ej. 60 x 90 cm"
                        value="{{ old('dimensions', $obra->dimensions ?? '') }}">
             </div>
             <div class="form-group">
                 <label>Estado</label>
                 <select name="status">
-                    @foreach(['available','sold','reserved','hidden'] as $s)
-                        <option value="{{ $s }}" {{ old('status', $obra->status ?? 'available') === $s ? 'selected' : '' }}>
-                            {{ ucfirst($s) }}
+                    @foreach(\App\Models\Artwork::STATUSES as $s)
+                        <option value="{{ $s }}" {{ old('status', $obra->status ?? 'publicado') === $s ? 'selected' : '' }}>
+                            {{ str_replace('_', ' ', ucfirst($s)) }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Disponibilidad</label>
+                <select name="availability">
+                    @foreach(\App\Models\Artwork::AVAILABILITIES as $s)
+                        <option value="{{ $s }}" {{ old('availability', $obra->availability ?? 'disponible') === $s ? 'selected' : '' }}>
+                            {{ $s === 'no_venta' ? 'No a la venta' : ucfirst($s) }}
                         </option>
                     @endforeach
                 </select>

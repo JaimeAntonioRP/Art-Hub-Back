@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -23,7 +23,7 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials, true)) {
+        if (Auth::attempt([...$credentials, 'is_active' => true], true)) {
             if (Auth::user()->role !== 'admin') {
                 Auth::logout();
                 return back()->withErrors(['email' => 'No tienes permisos de administrador.']);

@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.app')
+@extends('admin.layouts.app')
 
 @section('page-title', 'Usuarios')
 
@@ -33,10 +33,10 @@
                     <td>
                         @if($user->role === 'admin')
                             <span class="badge badge-yellow">Admin</span>
-                        @elseif($user->role === 'collector')
-                            <span class="badge badge-blue">Coleccionista</span>
+                        @elseif($user->role === 'artista')
+                            <span class="badge badge-blue">Artista</span>
                         @else
-                            <span class="badge badge-gray">{{ $user->role ?? 'user' }}</span>
+                            <span class="badge badge-gray">Comprador</span>
                         @endif
                     </td>
                     <td style="color:var(--muted); font-size:12px;">
@@ -47,8 +47,8 @@
                             @csrf @method('PATCH')
                             <div style="display:flex; gap:6px; align-items:center;">
                                 <select name="role" style="max-width:130px; padding:5px 8px; font-size:12px;">
-                                    @foreach(['user','collector','admin'] as $r)
-                                        <option value="{{ $r }}" {{ ($user->role ?? 'user') === $r ? 'selected' : '' }}>
+                                    @foreach(\App\Models\User::ROLES as $r)
+                                        <option value="{{ $r }}" {{ $user->role === $r ? 'selected' : '' }}>
                                             {{ ucfirst($r) }}
                                         </option>
                                     @endforeach

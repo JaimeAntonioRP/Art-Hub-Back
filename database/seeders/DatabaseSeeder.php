@@ -4,178 +4,47 @@ namespace Database\Seeders;
 
 use App\Models\Artist;
 use App\Models\Artwork;
-use App\Models\Certificate;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
+/**
+ * Se ejecuta en cada deploy, así que solo crea lo que falta:
+ * nunca borra registros ni sobrescribe lo que se editó desde los paneles.
+ */
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->seedUsers();
+        $this->seedAdmin();
         $this->seedArtists();
-        $this->seedArtworks();
-        $this->seedJaimeCollection();
+        $this->seedAugustoCollection();
     }
 
-    private function seedJaimeCollection(): void
+    private function seedAdmin(): void
     {
-        // elimina TODAS las variantes antiguas (Jaime o Augusto mal creado)
-        // para garantizar que solo quede UNA entrada limpia
-        Artist::where('slug', 'jaime-antonio-rodriguez')
-               ->orWhere('slug', 'jaime-antonio-rodriguez-phillco')
-               ->orWhere('slug', 'augusto-garcia-penalva')
-               ->orWhere('name', 'like', '%Jaime Antonio%')
-               ->orWhere('name', 'like', '%Augusto Garcia%')
-               ->delete();
-
-        $artistName = 'Augusto Garcia Peñalva';
-
-        Artist::updateOrCreate(
-            ['slug' => 'augusto-garcia-penalva'],
-            [
-                'name'              => $artistName,
-                'origin'            => 'Cusco, Perú',
-                'birth_year'        => 1985,
-                'death_year'        => null,
-                'specialty'         => 'Arte contemporáneo andino, Pintura y escultura 3D',
-                'bio'               => 'Augusto Garcia Peñalva es un artista cusqueño que fusiona la tradición pictórica andina con herramientas digitales y modelado 3D. Su obra explora la identidad, la maternidad, la naturaleza de los Apus y la vida comunitaria del Cusco a través de una paleta cálida y composiciones íntimas. Cada pieza está certificada biométricamente y varias cuentan con su versión tridimensional explorable en realidad aumentada.',
-                'profile_image_url' => '/equipo/augusto.png',
-                'featured'          => true,
-            ],
-        );
-
-        // [slug, título, precio, match%, blockchain, tiene3D, descripción, técnica, año, dimensiones]
-        $collection = [
-            ['confidencias-al-viento',      'Confidencias al Viento',        8200,  97.4, true,  true,  'Dos figuras comparten un secreto mientras el viento andino arrastra sus palabras hacia los cerros. Óleo de tonos cálidos con versión 3D explorable.',                              'Óleo sobre lienzo · Modelado 3D',          2023, '90 × 120 cm'],
-            ['ecos-de-la-montana',          'Ecos de la Montaña',            9600,  96.1, true,  true,  'La montaña responde al canto de quienes la habitan. Composición que captura la resonancia espiritual del paisaje cusqueño. Incluye modelo 3D.',                                 'Óleo sobre lienzo · Modelado 3D',          2022, '100 × 130 cm'],
-            ['el-calor-de-la-hermandad',    'El Calor de la Hermandad',      6400,  92.8, false, false, 'Retrato de la unión comunitaria andina, donde el abrazo colectivo es refugio frente al frío de las alturas.',                                                                     'Técnica mixta andina',                     2021, '80 × 100 cm'],
-            ['el-latido-del-reposo',        'El Latido del Reposo',          7800,  95.5, true,  true,  'El descanso como acto sagrado. Una figura en reposo cuyo pulso late al ritmo de la tierra. Versión tridimensional disponible.',                                                  'Óleo sobre lienzo · Modelado 3D',          2023, '85 × 110 cm'],
-            ['el-primer-fruto-de-la-tierra','El Primer Fruto de la Tierra',  7100,  93.6, false, false, 'Celebración de la primera cosecha, ofrenda y gratitud a la Pachamama por la abundancia.',                                                                                       'Acrílico sobre tela',                      2020, '70 × 90 cm'],
-            ['el-reposo-del-caminante',     'El Reposo del Caminante',       6900,  91.2, false, false, 'El viajero andino encuentra una pausa en su largo camino por los senderos del Valle Sagrado.',                                                                                   'Acrílico sobre tela',                      2021, '75 × 95 cm'],
-            ['el-tejido-sagrado',           'El Tejido Sagrado',            10400,  98.2, true,  false, 'Las manos de la tejedora entrelazan memoria, identidad y cosmovisión en cada hilo del telar ancestral.',                                                                          'Óleo y pan de oro sobre lienzo',           2022, '100 × 100 cm'],
-            ['furia-sangre-y-tradicion',    'Furia, Sangre y Tradición',    11800,  96.9, true,  false, 'La intensidad del rito y la danza guerrera andina, donde la tradición se vive con el cuerpo y el alma.',                                                                          'Técnica mixta andina',                     2023, '110 × 140 cm'],
-            ['hijas-del-apu',               'Hijas del Apu',                 9200,  97.0, true,  true,  'Las mujeres protegidas por el espíritu de la montaña sagrada. Obra central de la serie, con modelo 3D.',                                                                          'Óleo sobre lienzo · Modelado 3D',          2022, '95 × 120 cm'],
-            ['madre-cusquena',              'Madre Cusqueña',               12500,  99.1, true,  true,  'La maternidad andina retratada con ternura y fuerza. Pieza emblemática de la colección, explorable en 3D y AR.',                                                                  'Óleo sobre lienzo · Modelado 3D',          2024, '120 × 150 cm'],
-            ['melancolia-entre-las-cuerdas','Melancolía entre las Cuerdas',  7400,  94.3, false, false, 'El músico solitario y su instrumento comparten una pena silenciosa bajo el cielo del altiplano.',                                                                                 'Acrílico sobre tela',                      2021, '80 × 100 cm'],
-            ['ofrenda-de-la-tierra',        'Ofrenda de la Tierra',          6800,  92.0, false, false, 'Manos campesinas ofrecen los dones del suelo en un gesto de reciprocidad con la naturaleza.',                                                                                     'Técnica mixta andina',                     2020, '70 × 90 cm'],
-            ['piedad-cusquena',             'Piedad Cusqueña',              13200,  98.7, true,  false, 'Reinterpretación andina de la piedad clásica, fusionando el dolor universal con la espiritualidad del Cusco.',                                                                    'Óleo sobre lienzo',                        2024, '130 × 160 cm'],
-            ['pureza-al-descubierto',       'Pureza al Descubierto',         8600,  95.0, false, false, 'Estudio de la inocencia y la verdad sin máscaras, en una composición de luz delicada.',                                                                                           'Acrílico sobre lienzo',                    2022, '80 × 100 cm'],
-            ['refugio-de-paz',              'Refugio de Paz',                7000,  93.1, false, false, 'Un rincón de serenidad en medio del bullicio del mundo, donde el alma encuentra calma.',                                                                                          'Acrílico sobre tela',                      2021, '75 × 95 cm'],
-            ['semilla-de-vida',             'Semilla de Vida',               6600,  91.8, false, false, 'El origen de todo: la pequeña semilla que guarda en sí la promesa de la existencia.',                                                                                             'Técnica mixta andina',                     2020, '60 × 80 cm'],
-            ['semilla-y-raiz',              'Semilla y Raíz',                6700,  92.5, false, false, 'Diálogo entre lo que germina y lo que sostiene; la conexión profunda con los ancestros.',                                                                                         'Técnica mixta andina',                     2021, '65 × 85 cm'],
-            ['sueno-entre-apus',            'Sueño entre Apus',              9900,  96.4, true,  false, 'Un descanso onírico abrazado por las montañas tutelares del Cusco, guardianas del sueño.',                                                                                        'Óleo sobre lienzo',                        2023, '100 × 120 cm'],
-            ['vuelo-compartido',            'Vuelo Compartido',              8800,  95.7, false, false, 'Dos espíritus que se elevan juntos, símbolo de la libertad y el acompañamiento mutuo.',                                                                                           'Acrílico sobre lienzo',                    2022, '90 × 110 cm'],
-        ];
-
-        foreach ($collection as [$slug, $title, $price, $match, $hasChain, $has3d, $desc, $technique, $year, $dimensions]) {
-            $artwork = Artwork::updateOrCreate(
-                ['title' => $title],
-                [
-                    'artist_name'  => $artistName,
-                    'price'        => $price,
-                    'description'  => $desc,
-                    'technique'    => $technique,
-                    'year'         => $year,
-                    'dimensions'   => $dimensions,
-                    'image_url'    => '/obras/'.$slug.'.jpg',
-                    'model_3d_url' => $has3d ? '/3d/'.$slug.'.glb' : null,
-                    'status'       => 'available',
-                ],
-            );
-
-            Certificate::updateOrCreate(
-                ['artwork_id' => $artwork->id],
-                [
-                    'biometric_hash'   => hash('sha256', $artwork->title.'|'.$artistName),
-                    'match_percentage' => $match,
-                    'blockchain_tx_id' => $hasChain ? '0x'.bin2hex(random_bytes(32)) : null,
-                    'contract_address' => $hasChain ? '0x'.bin2hex(random_bytes(20)) : null,
-                ],
-            );
+        $email = config('app.admin.email');
+        if (User::where('email', $email)->exists()) {
+            return;
         }
-    }
 
-    private function seedUsers(): void
-    {
-        $users = [
-            [
-                'name'           => 'Administrador Arthub',
-                'email'          => 'admin@arthub.pe',
-                'password'       => Hash::make('password'),
-                'role'           => 'admin',
-                'wallet_address' => null,
-            ],
-            [
-                'name'           => 'Carla Montoya Quispe',
-                'email'          => 'carla.montoya@arthub.pe',
-                'password'       => Hash::make('password'),
-                'role'           => 'investor',
-                'wallet_address' => '0x9C2A8F77D1B4E5A60F2c2A1B7CB6A0BD13E4F112',
-            ],
-            [
-                'name'           => 'Mateo Coleccionista',
-                'email'          => 'mateo@arthub.pe',
-                'password'       => Hash::make('password'),
-                'role'           => 'investor',
-                'wallet_address' => '0x7F11C3B92E9AE5631F8C0D5b81e7d442Aa12B0Ee',
-            ],
-            [
-                'name'           => 'Sofia Bergmann',
-                'email'          => 'sofia.bergmann@gallery-zurich.ch',
-                'password'       => Hash::make('password'),
-                'role'           => 'investor',
-                'wallet_address' => '0xA4c0D17F8bE2931C05Ab77d5E3c0B4A18FF92D3c',
-            ],
-            [
-                'name'           => 'Alejandro Ruiz Vargas',
-                'email'          => 'alejandro.ruiz@fondo-capital.mx',
-                'password'       => Hash::make('password'),
-                'role'           => 'investor',
-                'wallet_address' => '0xB81e7D3c2F44A0c55E9CB6A17D8F20B3C4E5F6A7',
-            ],
-            [
-                'name'           => 'Priya Nair',
-                'email'          => 'priya.nair@artfund-singapore.sg',
-                'password'       => Hash::make('password'),
-                'role'           => 'investor',
-                'wallet_address' => '0xC92bA4E31D7F5B6C8E0A9B2C3D4E5F6A7B8C9D0E',
-            ],
-            [
-                'name'           => 'Thomas Leclerc',
-                'email'          => 'thomas.leclerc@patrimoine-paris.fr',
-                'password'       => Hash::make('password'),
-                'role'           => 'investor',
-                'wallet_address' => '0xD03cB5F42E8A7C9D0E1F2A3B4C5D6E7F8A9B0C1D',
-            ],
-            [
-                'name'           => 'Isabella Ferretti',
-                'email'          => 'i.ferretti@collezioni-roma.it',
-                'password'       => Hash::make('password'),
-                'role'           => 'investor',
-                'wallet_address' => null,
-            ],
-            [
-                'name'           => 'James Whitmore',
-                'email'          => 'j.whitmore@miami-arts.us',
-                'password'       => Hash::make('password'),
-                'role'           => 'investor',
-                'wallet_address' => '0xE14dC6A53F9B8D0E2F3A4B5C6D7E8F9A0B1C2D3E',
-            ],
-            [
-                'name'           => 'Lin Wei',
-                'email'          => 'lin.wei@artventure-hk.com',
-                'password'       => Hash::make('password'),
-                'role'           => 'investor',
-                'wallet_address' => '0xF25eD7B64A0C9E1F3A4B5C6D7E8F9A0B1C2D3E4F',
-            ],
-        ];
+        $password = config('app.admin.password');
+        if (! $password) {
+            if (app()->isProduction()) {
+                $this->command?->warn('ADMIN_PASSWORD no está definido: no se creó el administrador.');
 
-        foreach ($users as $data) {
-            User::updateOrCreate(['email' => $data['email']], $data);
+                return;
+            }
+            $password = 'password';
         }
+
+        User::create([
+            'name'      => 'Administrador Arthub',
+            'email'     => $email,
+            'password'  => Hash::make($password),
+            'role'      => User::ROLE_ADMIN,
+            'is_active' => true,
+        ]);
     }
 
     private function seedArtists(): void
@@ -284,210 +153,69 @@ class DatabaseSeeder extends Seeder
 
         foreach ($artists as $data) {
             $data['profile_image_url'] = '/artistas/'.$data['slug'].'.jpg';
-            Artist::updateOrCreate(['slug' => $data['slug']], $data);
+            $data['status'] = Artist::STATUS_APROBADO;
+            Artist::firstOrCreate(['slug' => $data['slug']], $data);
         }
     }
 
-    private function seedArtworks(): void
+    private function seedAugustoCollection(): void
     {
-        // Elimina todas las obras que NO son de Augusto Garcia Peñalva
-        // (eran placeholders sin imagen real)
-        Artwork::where('artist_name', '!=', 'Augusto Garcia Peñalva')->delete();
-    }
+        $artist = Artist::firstOrCreate(
+            ['slug' => 'augusto-garcia-penalva'],
+            [
+                'name'              => 'Augusto Garcia Peñalva',
+                'origin'            => 'Cusco, Perú',
+                'birth_year'        => 1985,
+                'specialty'         => 'Arte contemporáneo andino, Pintura y escultura 3D',
+                'bio'               => 'Augusto Garcia Peñalva es un artista cusqueño que fusiona la tradición pictórica andina con herramientas digitales y modelado 3D. Su obra explora la identidad, la maternidad, la naturaleza de los Apus y la vida comunitaria del Cusco a través de una paleta cálida y composiciones íntimas. Varias de sus piezas cuentan con una versión tridimensional explorable.',
+                'profile_image_url' => '/equipo/augusto.png',
+                'featured'          => true,
+                'status'            => Artist::STATUS_APROBADO,
+            ],
+        );
 
-    private function seedArtworksLegacy(): void
-    {
-        // método desactivado — conservado solo para referencia
-        $catalog = [
-            [
-                'title'          => 'Procesion del Senor de los Temblores',
-                'artist_name'    => 'Mariano Fuentes Lira',
-                'price'          => 18500.00,
-                'description'    => 'Oleo sobre lienzo de gran formato que retrata la procesion central del Cusco con detalle minucioso en los mantos bordados y la arquitectura colonial de la Plaza de Armas. Obra de referencia del barroco andino del siglo XX.',
-                'image_url'      => 'https://images.unsplash.com/photo-1578926375605-eaf7559b1458?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'available',
-                'match'          => 98.42,
-                'has_blockchain' => true,
-            ],
-            [
-                'title'          => 'Virgen del Carmen de Paucartambo',
-                'artist_name'    => 'Edilberto Mérida',
-                'price'          => 12750.00,
-                'description'    => 'Pieza de la escuela cusquena contemporanea inspirada en la festividad mariana de Paucartambo. Tecnica mixta con pan de oro y pigmentos minerales. Certificada por el Ministerio de Cultura del Peru.',
-                'image_url'      => 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=1200',
-                'model_3d_url'   => 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
-                'status'         => 'available',
-                'match'          => 96.10,
-                'has_blockchain' => true,
-            ],
-            [
-                'title'          => 'Retablo de Ollantaytambo',
-                'artist_name'    => 'Hilario Mendívil',
-                'price'          => 22300.00,
-                'description'    => 'Retablo en madera policromada que recrea escenas del Valle Sagrado y la cosmovision andina. Trabajo en yeso de papa con acabado en esmalte. Pieza unica de alto valor etnografico.',
-                'image_url'      => 'https://images.unsplash.com/photo-1577083552431-6e5fd01988ec?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'available',
-                'match'          => 99.05,
-                'has_blockchain' => true,
-            ],
-            [
-                'title'          => 'Pachamama bajo la Cruz del Sur',
-                'artist_name'    => 'Maximiliana Palomino',
-                'price'          => 9800.00,
-                'description'    => 'Tecnica mixta sobre tabla con pigmentos minerales del Valle. Sintesis entre lo prehispanico y lo barroco andino. La obra explora la dualidad cosmologica inca a traves de simbolos geometricos y figuras zoomorfas.',
-                'image_url'      => 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'available',
-                'match'          => 94.78,
-                'has_blockchain' => false,
-            ],
-            [
-                'title'          => 'Mercado de San Pedro al amanecer',
-                'artist_name'    => 'Antonio Olave Palomino',
-                'price'          => 7600.00,
-                'description'    => 'Escena costumbrista que documenta el comercio tradicional del Cusco a inicios del siglo XX. Oleo sobre tela con influencia de la pintura academica limena y la tradicion narrativa andina.',
-                'image_url'      => 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'available',
-                'match'          => 92.30,
-                'has_blockchain' => false,
-            ],
-            [
-                'title'          => 'Inti Raymi, ofrenda solar',
-                'artist_name'    => 'Mariano Fuentes Lira',
-                'price'          => 31200.00,
-                'description'    => 'Pieza monumental 180x240 cm que captura la ceremonia del Inti Raymi en la Fortaleza de Sacsayhuaman con simbolismo incaico y pinceladas neobarrocas. Presentada en la Bienal de Arte Andino 2019.',
-                'image_url'      => 'https://images.unsplash.com/photo-1577720643272-265f09367456?w=1200',
-                'model_3d_url'   => 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
-                'status'         => 'available',
-                'match'          => 97.65,
-                'has_blockchain' => true,
-            ],
-            [
-                'title'          => 'Choquequirao en la bruma',
-                'artist_name'    => 'Edilberto Mérida',
-                'price'          => 14400.00,
-                'description'    => 'Paisaje contemplativo del complejo arqueologico de Choquequirao visto desde el mirador de Capuliyoc. Oleo sobre tela de algodon andino con imprimatura ocre. Atmosfera niebla matinal capturada in situ.',
-                'image_url'      => 'https://images.unsplash.com/photo-1526481280699-c40e3d68fdf2?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'available',
-                'match'          => 95.20,
-                'has_blockchain' => false,
-            ],
-            [
-                'title'          => 'Tejedoras de Chinchero',
-                'artist_name'    => 'Maximiliana Palomino',
-                'price'          => 8900.00,
-                'description'    => 'Retrato colectivo de las maestras tejedoras de Chinchero, custodias del telar de cintura ancestral. Tecnica acuarela sobre papel Fabriano 300g con trazos en tinta ferrogalica.',
-                'image_url'      => 'https://images.unsplash.com/photo-1604079628040-94301bb21b91?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'available',
-                'match'          => 93.55,
-                'has_blockchain' => false,
-            ],
-            [
-                'title'          => 'La Ultima Cena Andina',
-                'artist_name'    => 'Marcos Zapata',
-                'price'          => 45000.00,
-                'description'    => 'Replica documentada y certificada de la celebre obra de la Catedral del Cusco que muestra la Ultima Cena con elementos gastronomicos andinos. Ejecutada con criterios de alta fidelidad cromatica y compositiva.',
-                'image_url'      => 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=1200',
-                'model_3d_url'   => 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
-                'status'         => 'available',
-                'match'          => 99.87,
-                'has_blockchain' => true,
-            ],
-            [
-                'title'          => 'Nevado Ausangate en verano',
-                'artist_name'    => 'Victor Delfín Quiroga',
-                'price'          => 16800.00,
-                'description'    => 'Vista del Ausangate a 6384 metros durante el solsticio de diciembre. Pintura al oleo con espátula sobre tela gruesa. Paleta fria y luminosa que evoca la experiencia mistica del Qoyllur Riti.',
-                'image_url'      => 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'available',
-                'match'          => 91.40,
-                'has_blockchain' => false,
-            ],
-            [
-                'title'          => 'Danzantes de Tijeras',
-                'artist_name'    => 'Joaquín López Antay',
-                'price'          => 11200.00,
-                'description'    => 'Representacion de los danzantes de tijeras de Ayacucho en plena competencia ritual. Obra en acrilico sobre tela con superposicion de capas veladas. Patrimonio Cultural de la Nacion declarado por la UNESCO.',
-                'image_url'      => 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'available',
-                'match'          => 96.88,
-                'has_blockchain' => true,
-            ],
-            [
-                'title'          => 'Quechua madre e hijo',
-                'artist_name'    => 'Hilario Mendívil',
-                'price'          => 19500.00,
-                'description'    => 'Escultura en yeso de papa pintada al frio que representa la iconografia maternal andina. Serie Nacimiento del mundo, pieza central. Cuello elongado caracteristico de la escuela mendivil reconocida internacionalmente.',
-                'image_url'      => 'https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?w=1200',
-                'model_3d_url'   => 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
-                'status'         => 'available',
-                'match'          => 98.10,
-                'has_blockchain' => true,
-            ],
-            [
-                'title'          => 'Plaza Mayor del Cusco 1890',
-                'artist_name'    => 'Juan de Espinosa Medrano',
-                'price'          => 52000.00,
-                'description'    => 'Obra atribuida documentalmente al periodo colonial tardio. Vista panoramica de la Plaza Mayor del Cusco con fuente central y calesas. Oleo sobre lienzo encolado en tabla de cedro andino.',
-                'image_url'      => 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'available',
-                'match'          => 97.33,
-                'has_blockchain' => true,
-            ],
-            [
-                'title'          => 'Chakana cosmica',
-                'artist_name'    => 'Maximiliana Palomino',
-                'price'          => 6400.00,
-                'description'    => 'Serie geometrica sobre la cruz andina como eje del universo. Tecnica mixta, oro fino y arcilla cocida sobre panel de madera. Pieza de coleccion de formato reducido 40x40 cm.',
-                'image_url'      => 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'available',
-                'match'          => 89.75,
-                'has_blockchain' => false,
-            ],
-            [
-                'title'          => 'Rio Urubamba en agosto',
-                'artist_name'    => 'Victor Delfín Quiroga',
-                'price'          => 13300.00,
-                'description'    => 'Vista del Rio Urubamba a su paso por el Valle Sagrado en epoca de estiaje. Impresionismo andino con influencia de la escuela de Barbizon. Colores ocres y verdes que evocan la temporada seca del altiplano.',
-                'image_url'      => 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200',
-                'model_3d_url'   => null,
-                'status'         => 'sold',
-                'match'          => 95.60,
-                'has_blockchain' => true,
-            ],
+        // [slug, título, precio USD, tiene3D, descripción, técnica, año, dimensiones (alto × ancho)]
+        $collection = [
+            ['confidencias-al-viento',      'Confidencias al Viento',        8200,  true,  'Dos figuras comparten un secreto mientras el viento andino arrastra sus palabras hacia los cerros. Óleo de tonos cálidos con versión 3D explorable.',                              'Óleo sobre lienzo · Modelado 3D',          2023, '90 × 120 cm'],
+            ['ecos-de-la-montana',          'Ecos de la Montaña',            9600,  true,  'La montaña responde al canto de quienes la habitan. Composición que captura la resonancia espiritual del paisaje cusqueño. Incluye modelo 3D.',                                 'Óleo sobre lienzo · Modelado 3D',          2022, '100 × 130 cm'],
+            ['el-calor-de-la-hermandad',    'El Calor de la Hermandad',      6400, false, 'Retrato de la unión comunitaria andina, donde el abrazo colectivo es refugio frente al frío de las alturas.',                                                                     'Técnica mixta andina',                     2021, '80 × 100 cm'],
+            ['el-latido-del-reposo',        'El Latido del Reposo',          7800,  true,  'El descanso como acto sagrado. Una figura en reposo cuyo pulso late al ritmo de la tierra. Versión tridimensional disponible.',                                                  'Óleo sobre lienzo · Modelado 3D',          2023, '85 × 110 cm'],
+            ['el-primer-fruto-de-la-tierra','El Primer Fruto de la Tierra',  7100, false, 'Celebración de la primera cosecha, ofrenda y gratitud a la Pachamama por la abundancia.',                                                                                       'Acrílico sobre tela',                      2020, '70 × 90 cm'],
+            ['el-reposo-del-caminante',     'El Reposo del Caminante',       6900, false, 'El viajero andino encuentra una pausa en su largo camino por los senderos del Valle Sagrado.',                                                                                   'Acrílico sobre tela',                      2021, '75 × 95 cm'],
+            ['el-tejido-sagrado',           'El Tejido Sagrado',            10400,  false, 'Las manos de la tejedora entrelazan memoria, identidad y cosmovisión en cada hilo del telar ancestral.',                                                                          'Óleo y pan de oro sobre lienzo',           2022, '100 × 100 cm'],
+            ['furia-sangre-y-tradicion',    'Furia, Sangre y Tradición',    11800,  false, 'La intensidad del rito y la danza guerrera andina, donde la tradición se vive con el cuerpo y el alma.',                                                                          'Técnica mixta andina',                     2023, '110 × 140 cm'],
+            ['hijas-del-apu',               'Hijas del Apu',                 9200,  true,  'Las mujeres protegidas por el espíritu de la montaña sagrada. Obra central de la serie, con modelo 3D.',                                                                          'Óleo sobre lienzo · Modelado 3D',          2022, '95 × 120 cm'],
+            ['madre-cusquena',              'Madre Cusqueña',               12500,  true,  'La maternidad andina retratada con ternura y fuerza. Pieza emblemática de la colección, explorable en 3D y AR.',                                                                  'Óleo sobre lienzo · Modelado 3D',          2024, '120 × 150 cm'],
+            ['melancolia-entre-las-cuerdas','Melancolía entre las Cuerdas',  7400, false, 'El músico solitario y su instrumento comparten una pena silenciosa bajo el cielo del altiplano.',                                                                                 'Acrílico sobre tela',                      2021, '80 × 100 cm'],
+            ['ofrenda-de-la-tierra',        'Ofrenda de la Tierra',          6800, false, 'Manos campesinas ofrecen los dones del suelo en un gesto de reciprocidad con la naturaleza.',                                                                                     'Técnica mixta andina',                     2020, '70 × 90 cm'],
+            ['piedad-cusquena',             'Piedad Cusqueña',              13200,  false, 'Reinterpretación andina de la piedad clásica, fusionando el dolor universal con la espiritualidad del Cusco.',                                                                    'Óleo sobre lienzo',                        2024, '130 × 160 cm'],
+            ['pureza-al-descubierto',       'Pureza al Descubierto',         8600, false, 'Estudio de la inocencia y la verdad sin máscaras, en una composición de luz delicada.',                                                                                           'Acrílico sobre lienzo',                    2022, '80 × 100 cm'],
+            ['refugio-de-paz',              'Refugio de Paz',                7000, false, 'Un rincón de serenidad en medio del bullicio del mundo, donde el alma encuentra calma.',                                                                                          'Acrílico sobre tela',                      2021, '75 × 95 cm'],
+            ['semilla-de-vida',             'Semilla de Vida',               6600, false, 'El origen de todo: la pequeña semilla que guarda en sí la promesa de la existencia.',                                                                                             'Técnica mixta andina',                     2020, '60 × 80 cm'],
+            ['semilla-y-raiz',              'Semilla y Raíz',                6700, false, 'Diálogo entre lo que germina y lo que sostiene; la conexión profunda con los ancestros.',                                                                                         'Técnica mixta andina',                     2021, '65 × 85 cm'],
+            ['sueno-entre-apus',            'Sueño entre Apus',              9900,  false, 'Un descanso onírico abrazado por las montañas tutelares del Cusco, guardianas del sueño.',                                                                                        'Óleo sobre lienzo',                        2023, '100 × 120 cm'],
+            ['vuelo-compartido',            'Vuelo Compartido',              8800, false, 'Dos espíritus que se elevan juntos, símbolo de la libertad y el acompañamiento mutuo.',                                                                                           'Acrílico sobre lienzo',                    2022, '90 × 110 cm'],
         ];
 
-        foreach ($catalog as $data) {
-            $artwork = Artwork::updateOrCreate(
-                ['title' => $data['title']],
-                [
-                    'artist_name'  => $data['artist_name'],
-                    'price'        => $data['price'],
-                    'description'  => $data['description'],
-                    'image_url'    => '/obras/'.Str::slug($data['title']).'.jpg',
-                    'model_3d_url' => $data['model_3d_url'] ? '/3d/'.Str::slug($data['title']).'.glb' : null,
-                    'status'       => $data['status'],
-                ],
-            );
+        foreach ($collection as [$slug, $title, $price, $has3d, $desc, $technique, $year, $dimensions]) {
+            if ($artist->artworks()->where('title', $title)->exists()) {
+                continue;
+            }
 
-            Certificate::updateOrCreate(
-                ['artwork_id' => $artwork->id],
-                [
-                    'biometric_hash'   => hash('sha256', $artwork->title . '|' . $artwork->artist_name),
-                    'match_percentage' => $data['match'],
-                    'blockchain_tx_id' => $data['has_blockchain'] ? '0x' . bin2hex(random_bytes(32)) : null,
-                    'contract_address' => $data['has_blockchain'] ? '0x' . bin2hex(random_bytes(20)) : null,
-                ],
-            );
+            Artwork::create([
+                'artist_id'    => $artist->id,
+                'title'        => $title,
+                'price'        => $price,
+                'currency'     => 'USD',
+                'description'  => $desc,
+                'technique'    => $technique,
+                'year'         => $year,
+                'dimensions'   => $dimensions,
+                'image_url'    => '/obras/'.$slug.'.jpg',
+                'model_3d_url' => $has3d ? '/3d/'.$slug.'.glb' : null,
+                'status'       => Artwork::STATUS_PUBLICADO,
+                'availability' => 'disponible',
+            ]);
         }
     }
 }

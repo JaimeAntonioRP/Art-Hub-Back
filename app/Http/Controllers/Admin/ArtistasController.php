@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -43,6 +43,8 @@ class ArtistasController extends Controller
 
         $data['slug']     = $data['slug'] ?: Str::slug($data['name']);
         $data['featured'] = $request->boolean('featured');
+        // Lo que crea el admin queda aprobado hasta que exista el flujo de revisión.
+        $data['status']   = Artist::STATUS_APROBADO;
 
         Artist::create($data);
 
@@ -80,6 +82,10 @@ class ArtistasController extends Controller
 
     public function destroy(Artist $artista)
     {
+        if ($artista->artworks()->exists()) {
+            return back()->withErrors(['artista' => 'El artista tiene obras registradas. Desactívalo en lugar de eliminarlo.']);
+        }
+
         $artista->delete();
         return back()->with('success', 'Artista eliminado.');
     }

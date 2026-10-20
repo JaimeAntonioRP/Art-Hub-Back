@@ -1,10 +1,11 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class UsuariosController extends Controller
 {
@@ -24,7 +25,7 @@ class UsuariosController extends Controller
     public function updateRole(Request $request, User $usuario)
     {
         $request->validate([
-            'role' => 'required|in:user,collector,admin',
+            'role' => ['required', Rule::in(User::ROLES)],
         ]);
 
         $usuario->update(['role' => $request->role]);

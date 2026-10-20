@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.app')
+@extends('admin.layouts.app')
 
 @section('page-title', 'Dashboard')
 
@@ -54,14 +54,18 @@
                     </td>
                     <td>{{ $obra->title }}</td>
                     <td>{{ $obra->artist_name }}</td>
-                    <td>S/ {{ number_format($obra->price, 2) }}</td>
+                    <td>{{ $obra->price !== null ? $obra->currency.' '.number_format($obra->price, 2) : '—' }}</td>
                     <td>
-                        @if($obra->status === 'available')
+                        @if($obra->status !== 'publicado')
+                            <span class="badge badge-gray">{{ str_replace('_', ' ', ucfirst($obra->status)) }}</span>
+                        @elseif($obra->availability === 'disponible')
                             <span class="badge badge-green">Disponible</span>
-                        @elseif($obra->status === 'sold')
+                        @elseif($obra->availability === 'vendida')
                             <span class="badge badge-red">Vendida</span>
+                        @elseif($obra->availability === 'reservada')
+                            <span class="badge badge-yellow">Reservada</span>
                         @else
-                            <span class="badge badge-gray">{{ $obra->status }}</span>
+                            <span class="badge badge-gray">No a la venta</span>
                         @endif
                     </td>
                 </tr>

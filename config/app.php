@@ -123,4 +123,19 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Administrador inicial
+    |--------------------------------------------------------------------------
+    |
+    | El seeder crea esta cuenta solo si no existe; nunca cambia su contraseña.
+    | En producción ADMIN_PASSWORD es obligatorio para crearla.
+    |
+    */
+
+    'admin' => [
+        'email' => env('ADMIN_EMAIL', 'admin@arthub.pe'),
+        'password' => env('ADMIN_PASSWORD'),
+    ],
+
 ];

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -7,6 +7,7 @@ use App\Models\Artist;
 use App\Models\Artwork;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ObrasController extends Controller
 {
@@ -15,7 +16,7 @@ class ObrasController extends Controller
         $obras = Artwork::query()
             ->when($request->q, fn($q, $search) =>
                 $q->where('title', 'like', "%$search%")
-                  ->orWhere('artist_name', 'like', "%$search%")
+                  ->orWhereHas('artist', fn($aq) => $aq->where('name', 'like', "%$search%"))
             )
             ->latest()
             ->paginate(20);
@@ -33,18 +34,18 @@ class ObrasController extends Controller
     {
         $data = $request->validate([
             'title'       => 'required|string|max:255',
-            'artist_name' => 'required|string|max:255',
+            'artist_name' => 'required|string|max:255|exists:artists,name',
             'price'       => 'nullable|numeric|min:0',
             'year'        => 'nullable|integer|min:1800|max:2100',
             'technique'   => 'nullable|string|max:255',
             'dimensions'  => 'nullable|string|max:255',
-            'status'      => 'nullable|in:available,sold,reserved,hidden',
+            'status'      => ['required', Rule::in(Artwork::STATUSES)],
+            'availability'=> ['required', Rule::in(Artwork::AVAILABILITIES)],
             'image_url'   => 'nullable|url',
             'model_3d_url'=> 'nullable|url',
             'description' => 'nullable|string',
         ]);
 
-        $data['status'] = $data['status'] ?? 'available';
         Artwork::create($data);
 
         return redirect()->route('admin.obras.index')
@@ -61,12 +62,13 @@ class ObrasController extends Controller
     {
         $data = $request->validate([
             'title'       => 'required|string|max:255',
-            'artist_name' => 'required|string|max:255',
+            'artist_name' => 'required|string|max:255|exists:artists,name',
             'price'       => 'nullable|numeric|min:0',
             'year'        => 'nullable|integer|min:1800|max:2100',
             'technique'   => 'nullable|string|max:255',
             'dimensions'  => 'nullable|string|max:255',
-            'status'      => 'nullable|in:available,sold,reserved,hidden',
+            'status'      => ['required', Rule::in(Artwork::STATUSES)],
+            'availability'=> ['required', Rule::in(Artwork::AVAILABILITIES)],
             'image_url'   => 'nullable|url',
             'model_3d_url'=> 'nullable|url',
             'description' => 'nullable|string',

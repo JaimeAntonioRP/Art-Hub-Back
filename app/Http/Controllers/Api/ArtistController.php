@@ -8,12 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Artist;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ArtistController extends Controller
 {
     public function index(): JsonResponse
     {
-        $artists = Artist::withCount(['artworks as total_obras'])
+        $artists = Artist::approved()
+            ->withCount(['artworks as total_obras' => fn ($q) => $q->published()])
             ->orderByDesc('featured')
             ->orderBy('name')
             ->get();
@@ -23,11 +25,13 @@ class ArtistController extends Controller
 
     public function show(string $slug): JsonResponse
     {
-        $artist = Artist::where('slug', $slug)
-            ->withCount(['artworks as total_obras'])
+        $artist = Artist::approved()
+            ->where('slug', $slug)
+            ->withCount(['artworks as total_obras' => fn ($q) => $q->published()])
             ->firstOrFail();
 
         $artworks = $artist->artworks()
+            ->published()
             ->with('certificate')
             ->orderByDesc('id')
             ->get();
@@ -54,7 +58,11 @@ class ArtistController extends Controller
             'bio'               => 'required|string',
             'profile_image_url' => ['required', 'string', 'max:2048', 'regex:#^(https?://|/)#'],
             'featured'          => 'boolean',
+            ...$this->profileRules(),
         ]);
+
+        // Lo que crea el admin queda aprobado hasta que exista el flujo de revisión.
+        $validated['status'] ??= Artist::STATUS_APROBADO;
 
         $artist = Artist::create($validated);
 
@@ -79,6 +87,7 @@ class ArtistController extends Controller
             'bio'               => 'sometimes|string',
             'profile_image_url' => ['sometimes', 'string', 'max:2048', 'regex:#^(https?://|/)#'],
             'featured'          => 'boolean',
+            ...$this->profileRules(),
         ]);
 
         $artist->update($validated);
@@ -92,8 +101,31 @@ class ArtistController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        Artist::findOrFail($id)->delete();
+        $artist = Artist::findOrFail($id);
+
+        if ($artist->artworks()->exists()) {
+            return response()->json(['message' => 'El artista tiene obras registradas. Desactívalo en lugar de eliminarlo.'], 409);
+        }
+
+        $artist->delete();
 
         return response()->json(['message' => 'Artist deleted.']);
+    }
+
+    /** Campos del perfil (§6) que el formulario actual aún no envía. */
+    private function profileRules(): array
+    {
+        return [
+            'artistic_name'  => 'nullable|string|max:255',
+            'techniques'     => 'nullable|array',
+            'techniques.*'   => 'string|max:100',
+            'career'         => 'nullable|string',
+            'awards'         => 'nullable|string',
+            'contact_email'  => 'nullable|email|max:255',
+            'contact_phone'  => 'nullable|string|max:50',
+            'social_links'   => 'nullable|array',
+            'social_links.*' => 'url|max:2048',
+            'status'         => ['sometimes', Rule::in(Artist::STATUSES)],
+        ];
     }
 }

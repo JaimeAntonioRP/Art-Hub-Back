@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -25,11 +25,10 @@ class CertificadosController extends Controller
 
     public function toggle(Certificate $certificado)
     {
-        // Toggle between active/revoked using a simple convention on a field.
-        // Certificate model may not have 'status' — we use blockchain_tx_id presence as proxy,
-        // or add a real status toggle once the column exists.
         $certificado->update([
-            'status' => ($certificado->status ?? 'active') === 'active' ? 'revoked' : 'active',
+            'status' => $certificado->status === Certificate::STATUS_VIGENTE
+                ? Certificate::STATUS_ANULADO
+                : Certificate::STATUS_VIGENTE,
         ]);
 
         return back()->with('success', 'Estado del certificado actualizado.');

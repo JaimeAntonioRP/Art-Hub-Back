@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.app')
+@extends('admin.layouts.app')
 
 @section('page-title', 'Certificados')
 
@@ -31,17 +31,17 @@
                     <td>{{ $cert->artwork->title ?? '—' }}</td>
                     <td>
                         <code style="font-size:11px; color:var(--muted); word-break:break-all;">
-                            {{ Str::limit($cert->verification_token ?? $cert->biometric_hash ?? '—', 40) }}
+                            {{ Str::limit($cert->verification_token ?? '—', 40) }}
                         </code>
                     </td>
                     <td style="color:var(--muted); font-size:12px;">
                         {{ $cert->created_at?->format('d/m/Y') ?? '—' }}
                     </td>
                     <td>
-                        @if(($cert->status ?? 'active') === 'active')
-                            <span class="badge badge-green">Activo</span>
+                        @if($cert->status === \App\Models\Certificate::STATUS_VIGENTE)
+                            <span class="badge badge-green">Vigente</span>
                         @else
-                            <span class="badge badge-red">Revocado</span>
+                            <span class="badge badge-red">Anulado</span>
                         @endif
                     </td>
                     <td>
@@ -49,7 +49,7 @@
                               onsubmit="return confirm('¿Cambiar estado del certificado?')">
                             @csrf @method('PATCH')
                             <button type="submit" class="btn btn-ghost btn-sm">
-                                {{ ($cert->status ?? 'active') === 'active' ? 'Revocar' : 'Activar' }}
+                                {{ $cert->status === \App\Models\Certificate::STATUS_VIGENTE ? 'Anular' : 'Reactivar' }}
                             </button>
                         </form>
                     </td>

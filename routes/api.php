@@ -4,7 +4,6 @@ use App\Http\Controllers\Api\ArtistController;
 use App\Http\Controllers\Api\ArtworkController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SettingController;
-use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\ValidationController;
 use Illuminate\Support\Facades\Route;
@@ -31,10 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/artworks/{id}', [ArtworkController::class, 'destroy']);
     Route::post('/uploads/image', [UploadController::class, 'image']);
     Route::post('/uploads/model', [UploadController::class, 'model']);
-
-    Route::post('/verify', [ValidationController::class, 'verify']);
-
-    Route::post('/purchase', [TransactionController::class, 'purchase']);
 
     Route::post('/artists', [ArtistController::class, 'store']);
     Route::put('/artists/{id}', [ArtistController::class, 'update']);

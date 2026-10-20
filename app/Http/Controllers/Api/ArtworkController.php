@@ -12,7 +12,7 @@ class ArtworkController extends Controller
     public function index(): JsonResponse
     {
         $artworks = Artwork::with('certificate')
-            ->where('status', 'available')
+            ->published()
             ->orderByDesc('id')
             ->get();
 
@@ -23,18 +23,30 @@ class ArtworkController extends Controller
     {
         $artwork = Artwork::with('certificate')->findOrFail($id);
 
+        if ($artwork->status !== Artwork::STATUS_PUBLICADO && ! auth('sanctum')->user()?->isAdmin()) {
+            abort(404);
+        }
+
         return response()->json($artwork);
     }
 
     public function store(StoreArtworkRequest $request): JsonResponse
     {
-        $artwork = Artwork::create($request->validated());
+        $data = $request->validated();
+        // Hasta que exista el flujo de revisión, lo que crea el admin se publica directo.
+        $data['status'] ??= Artwork::STATUS_PUBLICADO;
 
-        return response()->json($artwork, 201);
+        $artwork = Artwork::create($data);
+
+        return response()->json($artwork->fresh()->load('certificate'), 201);
     }
 
     public function adminIndex(): JsonResponse
     {
+        if (! request()->user()?->isAdmin()) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
         $artworks = Artwork::with('certificate')->orderByDesc('id')->get();
 
         return response()->json($artworks);
@@ -52,7 +64,7 @@ class ArtworkController extends Controller
     {
         $artwork = Artwork::findOrFail($id);
 
-        if (request()->user()?->role !== 'admin') {
+        if (! request()->user()?->isAdmin()) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 

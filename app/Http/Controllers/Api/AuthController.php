@@ -17,10 +17,10 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'wallet_address' => 'nullable|string|max:255',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['role'] = User::ROLE_COMPRADOR;
 
         $user = User::create($validated);
 
@@ -44,6 +44,12 @@ class AuthController extends Controller
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        if (! $user->is_active) {
+            throw ValidationException::withMessages([
+                'email' => ['Esta cuenta está desactivada.'],
             ]);
         }
 
