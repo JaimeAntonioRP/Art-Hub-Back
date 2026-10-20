@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->seedAdmin();
         $this->seedArtists();
         $this->seedAugustoCollection();
+        $this->call(SiteContentSeeder::class);
     }
 
     private function seedAdmin(): void

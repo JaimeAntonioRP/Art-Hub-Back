@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ArtistController;
 use App\Http\Controllers\Api\ArtworkController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\ValidationController;
@@ -22,6 +23,8 @@ Route::get('/artists', [ArtistController::class, 'index']);
 Route::get('/artists/{slug}', [ArtistController::class, 'show']);
 
 Route::get('/settings', [SettingController::class, 'index']);
+Route::get('/site', [ContentController::class, 'site']);
+Route::get('/pages/{slug}', [ContentController::class, 'page']);
 Route::get('/certificates/{token}', [ValidationController::class, 'showByToken']);
 
 Route::middleware('auth:sanctum')->group(function () {
