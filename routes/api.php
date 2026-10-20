@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ArtistController;
 use App\Http\Controllers\Api\ArtworkController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CommercialRequestController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\UploadController;
@@ -18,6 +19,7 @@ Route::middleware('throttle:auth')->group(function () {
 
 Route::get('/artworks', [ArtworkController::class, 'index']);
 Route::get('/artworks/{id}', [ArtworkController::class, 'show']);
+Route::post('/artworks/{id}/requests', [CommercialRequestController::class, 'store'])->middleware('throttle:requests');
 
 Route::get('/artists', [ArtistController::class, 'index']);
 Route::get('/artists/{slug}', [ArtistController::class, 'show']);

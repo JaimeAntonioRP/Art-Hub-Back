@@ -4,9 +4,11 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Resources\Artists\ArtistResource;
 use App\Filament\Resources\Artworks\ArtworkResource;
+use App\Filament\Resources\CommercialRequests\CommercialRequestResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\Artist;
 use App\Models\Artwork;
+use App\Models\CommercialRequest;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -24,7 +26,13 @@ class ReviewOverview extends StatsOverviewWidget
         $byStatus = Artwork::query()->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
         $pendingArtists = Artist::where('status', Artist::STATUS_PENDIENTE)->count();
 
+        $newRequests = CommercialRequest::where('status', CommercialRequest::STATUS_NUEVA)->count();
+
         return [
+            Stat::make('Solicitudes nuevas', $newRequests)
+                ->description('Interesados en una obra')
+                ->color($newRequests ? 'success' : 'gray')
+                ->url(CommercialRequestResource::getUrl('index', ['filters' => ['status' => ['value' => CommercialRequest::STATUS_NUEVA]]])),
             Stat::make('Obras por revisar', $byStatus[Artwork::STATUS_EN_REVISION] ?? 0)
                 ->description('Enviadas por los artistas')
                 ->color(($byStatus[Artwork::STATUS_EN_REVISION] ?? 0) ? 'info' : 'gray')

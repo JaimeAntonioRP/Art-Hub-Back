@@ -81,7 +81,7 @@ class ArtworkTest extends TestCase
         $published = Artwork::create(['artist_id' => $artist->id, 'title' => 'Publicada', 'status' => 'publicado']);
         $draft = Artwork::create(['artist_id' => $artist->id, 'title' => 'Borrador']);
 
-        $this->getJson('/api/artworks')->assertOk()->assertJsonCount(1)->assertJsonPath('0.id', $published->id);
+        $this->getJson('/api/artworks')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $published->id)->assertJsonPath('meta.total', 1);
         $this->getJson("/api/artworks/{$draft->id}")->assertNotFound();
         $this->getJson("/api/artists/{$artist->slug}")->assertOk()
             ->assertJsonPath('artist.total_obras', 1)

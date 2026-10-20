@@ -31,5 +31,11 @@ class AppServiceProvider extends ServiceProvider
         // Login, registro y recuperación: 6 intentos por minuto por IP y correo.
         RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(6)
             ->by(strtolower((string) $request->input('email')).'|'.$request->ip()));
+
+        // Solicitudes sobre obras: freno a envíos repetidos o automatizados (sin CAPTCHA de terceros).
+        RateLimiter::for('requests', fn (Request $request) => [
+            Limit::perMinute(3)->by('minuto:'.$request->ip()),
+            Limit::perDay(20)->by('dia:'.$request->ip()),
+        ]);
     }
 }

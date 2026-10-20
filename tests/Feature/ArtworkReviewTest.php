@@ -131,15 +131,15 @@ class ArtworkReviewTest extends TestCase
             ->assertActionHidden('unpublish')
             ->callAction('approve');
         $this->assertSame('aprobado', $artwork->fresh()->status);
-        $this->getJson('/api/artworks')->assertJsonCount(0);
+        $this->getJson('/api/artworks')->assertJsonCount(0, 'data');
 
         $page->callAction('publish');
         $this->assertSame('publicado', $artwork->fresh()->status);
         $this->assertNotNull($artwork->fresh()->published_at);
-        $this->getJson('/api/artworks')->assertJsonCount(1)->assertJsonPath('0.code', $artwork->code);
+        $this->getJson('/api/artworks')->assertJsonCount(1, 'data')->assertJsonPath('data.0.code', $artwork->code);
 
         $page->callAction('unpublish');
-        $this->getJson('/api/artworks')->assertJsonCount(0);
+        $this->getJson('/api/artworks')->assertJsonCount(0, 'data');
         // El admin puede previsualizarla; un visitante ya no.
         $this->getJson("/api/artworks/{$artwork->id}")->assertOk();
         auth()->logout();

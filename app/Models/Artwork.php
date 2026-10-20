@@ -225,6 +225,18 @@ class Artwork extends Model
         return $query->where('status', self::STATUS_PUBLICADO);
     }
 
+    /** Datos públicos para tarjetas del catálogo y de obras relacionadas. */
+    public function toCard(): array
+    {
+        return [
+            ...$this->only(['id', 'code', 'title', 'technique', 'year', 'price', 'currency', 'show_price', 'availability', 'model_3d_url']),
+            'artist_name' => $this->artist_name,
+            'artist_slug' => $this->artist?->slug,
+            'image_url' => $this->image_url,
+            'dimensions' => $this->dimensions,
+        ];
+    }
+
     public function primaryImage(): ?ArtworkImage
     {
         return $this->images->firstWhere('is_primary', true) ?? $this->images->first();
