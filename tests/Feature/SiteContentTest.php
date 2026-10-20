@@ -37,8 +37,11 @@ class SiteContentTest extends TestCase
             ->assertOk()
             ->assertJsonPath('brand.name', 'ArtHub')
             ->assertJsonPath('brand.logo_url', '/logifinal.png')
-            ->assertJsonPath('header_menu.0', ['label' => 'Catálogo', 'url' => '/obras'])
-            ->assertJsonPath('footer.columns.0.title', 'Navegación')
+            ->assertJsonPath('header_menu.0', ['label' => 'Colección', 'url' => '/obras'])
+            ->assertJsonPath('header_cta', ['label' => 'Ver colección', 'url' => '/obras'])
+            ->assertJsonMissingPath('utility')
+            ->assertJsonPath('footer.columns.0.title', 'Colección')
+            ->assertJsonPath('footer.columns.2.links.1.url', rtrim(config('app.url'), '/').'/artista')
             ->assertJsonPath('contact.email', 'info@arthub.pe');
     }
 

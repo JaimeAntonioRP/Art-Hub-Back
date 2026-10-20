@@ -45,13 +45,22 @@ final class PageBlocks
                 ->label('Portada')
                 ->icon(Heroicon::OutlinedSparkles)
                 ->schema([
+                    Select::make('variant')
+                        ->label('Diseño')
+                        ->options([
+                            'grande' => 'Imagen a pantalla completa con el texto encima',
+                            'dividida' => 'Texto a un lado e imagen al otro',
+                        ])
+                        // Opcional: las portadas creadas antes de este campo se ven «divididas».
+                        ->default('grande')
+                        ->placeholder('Texto a un lado e imagen al otro'),
                     TextInput::make('eyebrow')->label('Antetítulo'),
                     Grid::make(2)->schema([
                         TextInput::make('title')->label('Título')->required(),
                         TextInput::make('highlight')->label('Parte destacada')->helperText('Se muestra en cursiva dorada, a continuación del título.'),
                     ]),
                     Textarea::make('text')->label('Texto')->rows(3),
-                    ...self::image('image', 'Imagen'),
+                    ...self::image('image', 'Imagen', 'Para la portada grande: horizontal, de al menos 1920 px de ancho.'),
                     Toggle::make('show_featured_artwork')
                         ->label('Mostrar una obra publicada en lugar de la imagen'),
                     ...self::buttons(),
@@ -228,17 +237,18 @@ final class PageBlocks
     }
 
     /** @return array<\Filament\Schemas\Components\Component> */
-    private static function image(string $field, string $label): array
+    private static function image(string $field, string $label, ?string $help = null): array
     {
         return [
             Grid::make(2)->schema([
                 FileUpload::make($field)
                     ->label($label)
+                    ->helperText($help)
                     ->image()
                     ->disk(Disks::mediaName())
                     ->directory('sitio')
                     ->visibility('public')
-                    ->maxSize(6144),
+                    ->maxSize(8192),
                 TextInput::make("{$field}_url")
                     ->label("{$label} (URL o ruta, si no subes archivo)")
                     ->placeholder('/obras/madre-cusquena.jpg'),

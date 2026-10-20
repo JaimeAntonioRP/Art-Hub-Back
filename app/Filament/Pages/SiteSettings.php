@@ -82,10 +82,9 @@ class SiteSettings extends Page
                     ]),
                 Section::make('Encabezado')
                     ->schema([
-                        Grid::make(3)->schema([
-                            TextInput::make('utility_text')->label('Texto de la barra superior'),
-                            TextInput::make('utility_link_label')->label('Enlace de la barra (texto)'),
-                            TextInput::make('utility_link_url')->label('Enlace de la barra (dirección)'),
+                        Grid::make(2)->schema([
+                            TextInput::make('header_cta_label')->label('Botón destacado (texto)')->placeholder('Ver colección'),
+                            TextInput::make('header_cta_url')->label('Botón destacado (dirección)')->placeholder('/obras'),
                         ]),
                         Repeater::make('header_menu')
                             ->label('Menú principal')

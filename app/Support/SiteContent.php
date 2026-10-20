@@ -17,9 +17,8 @@ final class SiteContent
         'logo' => null,       // archivo subido en el panel (disco de imágenes)
         'logo_url' => null,   // URL o ruta del frontend (logo anterior al panel)
         'meta_description' => 'Catálogo de arte cusqueño con fichas técnicas, artistas revisados y verificación de obras.',
-        'utility_text' => 'Cusco, Perú',
-        'utility_link_label' => 'Verificar una obra',
-        'utility_link_url' => '/verificar',
+        'header_cta_label' => 'Ver colección', // botón destacado del encabezado
+        'header_cta_url' => '/obras',
         'header_menu' => [],
         'footer_about' => null,
         'footer_columns' => [],
@@ -70,11 +69,9 @@ final class SiteContent
                 'logo_url' => $s['logo'] ? Disks::mediaUrl($s['logo']) : $s['logo_url'],
             ],
             'meta_description' => $s['meta_description'],
-            'utility' => [
-                'text' => $s['utility_text'],
-                'link_label' => $s['utility_link_label'],
-                'link_url' => $s['utility_link_url'],
-            ],
+            'header_cta' => $s['header_cta_label'] && $s['header_cta_url']
+                ? ['label' => $s['header_cta_label'], 'url' => $s['header_cta_url']]
+                : null,
             'header_menu' => array_values($s['header_menu']),
             'footer' => [
                 'about' => $s['footer_about'],
