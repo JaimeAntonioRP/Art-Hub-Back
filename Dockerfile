@@ -4,8 +4,8 @@ FROM php:8.3-cli
 # Dependencias del sistema + extensiones PHP necesarias
 RUN apt-get update && apt-get install -y \
         git curl zip unzip \
-        libpq-dev libonig-dev libzip-dev libpng-dev \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip gd \
+        libpq-dev libonig-dev libzip-dev libpng-dev libicu-dev \
+    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip gd intl \
     && rm -rf /var/lib/apt/lists/*
 
 # Composer
