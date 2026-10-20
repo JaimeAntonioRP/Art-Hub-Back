@@ -42,6 +42,8 @@ class AdminPanelTest extends TestCase
         $this->actingAs($this->admin)->get('/admin')->assertOk();
         $this->actingAs($this->admin)->get('/admin/artistas')->assertOk();
         $this->actingAs($this->admin)->get('/admin/usuarios')->assertOk();
+        $this->actingAs($this->admin)->get('/admin/obras')->assertOk();
+        $this->actingAs($this->admin)->get('/admin/obras/create')->assertOk();
 
         $artist = User::factory()->create(['role' => User::ROLE_ARTISTA]);
         $this->actingAs($artist)->get('/admin')->assertForbidden();

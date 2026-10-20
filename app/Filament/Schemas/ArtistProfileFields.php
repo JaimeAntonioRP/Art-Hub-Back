@@ -3,6 +3,7 @@
 namespace App\Filament\Schemas;
 
 use App\Models\Artist;
+use App\Support\Disks;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\TagsInput;
@@ -32,7 +33,7 @@ final class ArtistProfileFields
                         ->label('Fotografía')
                         ->image()
                         ->imageEditor()
-                        ->disk('public')
+                        ->disk(Disks::mediaName())
                         ->directory('artists')
                         ->maxSize(4096)
                         ->visible(fn (?Artist $record) => ! self::hasLegacyPhoto($record))

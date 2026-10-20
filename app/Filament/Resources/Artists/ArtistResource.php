@@ -27,7 +27,10 @@ class ArtistResource extends Resource
 
     protected static ?string $modelLabel = 'artista';
 
-    protected static ?string $pluralModelLabel = 'artistas';
+    /** En español solo va mayúscula inicial: «Crear obra», no «Crear Obra». */
+    protected static bool $hasTitleCaseModelLabel = false;
+
+    protected static ?string $pluralModelLabel = 'Artistas';
 
     protected static ?int $navigationSort = 1;
 

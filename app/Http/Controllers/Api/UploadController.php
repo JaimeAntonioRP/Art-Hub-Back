@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Support\Disks;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,11 +21,11 @@ class UploadController extends Controller
             'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:8192',
         ]);
 
-        $path = $request->file('image')->store('artworks', 'public');
+        $path = $request->file('image')->store('artworks', Disks::mediaName());
 
         return response()->json([
             'path' => $path,
-            'url' => url('storage/'.$path),
+            'url' => Disks::mediaUrl($path),
         ], 201);
     }
 
@@ -48,11 +49,11 @@ class UploadController extends Controller
             return response()->json(['message' => 'El archivo no puede superar los 50 MB.'], 422);
         }
 
-        $path = $file->storeAs('models', uniqid('model_', true).'.'.$ext, 'public');
+        $path = $file->storeAs('models', uniqid('model_', true).'.'.$ext, Disks::mediaName());
 
         return response()->json([
             'path' => $path,
-            'url'  => url('storage/'.$path),
+            'url'  => Disks::mediaUrl($path),
         ], 201);
     }
 }

@@ -23,6 +23,25 @@ class Artwork extends Model
 
     public const CURRENCIES = ['PEN', 'USD'];
 
+    public const STATUS_BORRADOR = 'borrador';
+
+    public const STATUS_LABELS = [
+        'borrador'     => 'Borrador',
+        'en_revision'  => 'En revisión',
+        'observado'    => 'Observado',
+        'rechazado'    => 'Rechazado',
+        'aprobado'     => 'Aprobado',
+        'publicado'    => 'Publicado',
+        'despublicado' => 'Despublicado',
+    ];
+
+    public const AVAILABILITY_LABELS = [
+        'disponible' => 'Disponible',
+        'reservada'  => 'Reservada',
+        'vendida'    => 'Vendida',
+        'no_venta'   => 'No a la venta',
+    ];
+
     protected $fillable = [
         'artist_id',
         'title',
@@ -118,6 +137,12 @@ class Artwork extends Model
 
         static::saved(function (Artwork $artwork) {
             $artwork->syncPendingImage();
+        });
+
+        // La base de datos borra las filas en cascada, pero sin eventos: los archivos quedarían en el disco.
+        static::deleting(function (Artwork $artwork) {
+            $artwork->images()->get()->each->delete();
+            $artwork->documents()->get()->each->delete();
         });
     }
 

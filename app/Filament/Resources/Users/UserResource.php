@@ -26,7 +26,10 @@ class UserResource extends Resource
 
     protected static ?string $modelLabel = 'usuario';
 
-    protected static ?string $pluralModelLabel = 'usuarios';
+    /** En español solo va mayúscula inicial: «Crear obra», no «Crear Obra». */
+    protected static bool $hasTitleCaseModelLabel = false;
+
+    protected static ?string $pluralModelLabel = 'Usuarios';
 
     protected static ?int $navigationSort = 2;
 

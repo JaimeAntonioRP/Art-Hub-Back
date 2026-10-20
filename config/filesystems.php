@@ -60,6 +60,35 @@ return [
             'report' => false,
         ],
 
+        // Cloudflare R2 (API compatible con S3). Se activan con MEDIA_DISK=r2_media
+        // y DOCUMENTS_DISK=r2_documents; ver config/arthub.php.
+        'r2_media' => [
+            'driver' => 's3',
+            'key' => env('R2_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'region' => 'auto',
+            'bucket' => env('R2_MEDIA_BUCKET'),
+            'url' => env('R2_MEDIA_URL'), // dominio público del bucket de imágenes
+            'endpoint' => env('R2_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'visibility' => 'public',
+            'throw' => true,
+            'report' => true,
+        ],
+
+        'r2_documents' => [
+            'driver' => 's3',
+            'key' => env('R2_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'region' => 'auto',
+            'bucket' => env('R2_DOCUMENTS_BUCKET'),
+            'endpoint' => env('R2_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => true,
+        ],
+
     ],
 
     /*

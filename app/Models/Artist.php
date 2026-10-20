@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Notifications\ArtistProfileReviewed;
+use App\Support\Disks;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
@@ -107,14 +107,7 @@ class Artist extends Model
     /** Las fotos antiguas guardan una URL o ruta pública; las subidas desde el panel, una ruta del disco. */
     protected function photoUrl(): Attribute
     {
-        return Attribute::get(function () {
-            $path = $this->profile_image_url;
-            if (! $path) {
-                return null;
-            }
-
-            return preg_match('#^(https?://|/)#', $path) ? $path : Storage::disk('public')->url($path);
-        });
+        return Attribute::get(fn () => Disks::mediaUrl($this->profile_image_url));
     }
 
     public function canTransitionTo(string $status): bool

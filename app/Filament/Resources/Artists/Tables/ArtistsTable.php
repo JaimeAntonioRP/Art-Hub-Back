@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Artists\Tables;
 use App\Filament\Resources\Artists\ReviewActions;
 use App\Filament\Resources\Artists\Schemas\ArtistStatus;
 use App\Models\Artist;
+use App\Support\Disks;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -24,7 +25,7 @@ class ArtistsTable
                 ImageColumn::make('photo')
                     ->label('')
                     ->circular()
-                    ->getStateUsing(fn (Artist $record) => self::photoForPanel($record)),
+                    ->getStateUsing(fn (Artist $record) => Disks::absoluteUrl($record->photo_url)),
                 TextColumn::make('name')
                     ->label('Artista')
                     ->description(fn (Artist $record) => $record->artistic_name)
@@ -64,16 +65,5 @@ class ArtistsTable
                     ->label('Revisar')
                     ->button(),
             ]);
-    }
-
-    /** Las fotos antiguas son rutas del frontend (/artistas/…); en el panel se piden a ese dominio. */
-    private static function photoForPanel(Artist $record): ?string
-    {
-        $url = $record->photo_url;
-
-        return $url && str_starts_with($url, '/') && ! str_starts_with($url, '//')
-            && ! str_starts_with($url, '/storage/')
-            ? config('app.frontend_url').$url
-            : $url;
     }
 }
