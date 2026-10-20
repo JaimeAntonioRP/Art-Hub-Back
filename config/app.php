@@ -78,7 +78,7 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'es'),
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
@@ -132,6 +132,12 @@ return [
     | En producción ADMIN_PASSWORD es obligatorio para crearla.
     |
     */
+
+    /*
+    | URL pública del frontend (Next.js): enlaces de los correos de recuperación.
+    */
+
+    'frontend_url' => rtrim(env('FRONTEND_URL', 'http://localhost:3000'), '/'),
 
     'admin' => [
         'email' => env('ADMIN_EMAIL', 'admin@arthub.pe'),
