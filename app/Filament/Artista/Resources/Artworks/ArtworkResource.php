@@ -5,8 +5,11 @@ namespace App\Filament\Artista\Resources\Artworks;
 use App\Filament\Artista\Resources\Artworks\Pages\CreateArtwork;
 use App\Filament\Artista\Resources\Artworks\Pages\EditArtwork;
 use App\Filament\Artista\Resources\Artworks\Pages\ListArtworks;
+use App\Filament\Artista\Resources\Artworks\Pages\ViewArtwork;
 use App\Filament\RelationManagers\ArtworkDocumentsRelationManager;
+use App\Filament\RelationManagers\ArtworkHistoryRelationManager;
 use App\Filament\RelationManagers\ArtworkImagesRelationManager;
+use App\Filament\RelationManagers\ReviewNotesRelationManager;
 use App\Filament\Schemas\ArtworkFields;
 use App\Filament\Tables\ArtworksTable;
 use App\Models\Artwork;
@@ -60,6 +63,8 @@ class ArtworkResource extends Resource
         return [
             ArtworkImagesRelationManager::class,
             ArtworkDocumentsRelationManager::class,
+            ReviewNotesRelationManager::class,
+            ArtworkHistoryRelationManager::class,
         ];
     }
 
@@ -69,6 +74,7 @@ class ArtworkResource extends Resource
             'index' => ListArtworks::route('/'),
             'create' => CreateArtwork::route('/create'),
             'edit' => EditArtwork::route('/{record}/edit'),
+            'view' => ViewArtwork::route('/{record}'),
         ];
     }
 }

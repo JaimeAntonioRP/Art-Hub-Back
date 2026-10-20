@@ -27,9 +27,9 @@ class ArtistPanelTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    public function test_artist_panel_opens_on_their_profile(): void
+    public function test_artist_panel_opens_on_their_dashboard(): void
     {
-        $this->get('/artista')->assertRedirect('/artista/mi-perfil');
+        $this->get('/artista')->assertOk()->assertSee('Obras registradas')->assertSee('Obras por corregir');
         $this->get('/artista/mi-perfil')->assertOk()->assertSee('Pendiente de revisión');
         $this->get('/admin')->assertForbidden();
     }

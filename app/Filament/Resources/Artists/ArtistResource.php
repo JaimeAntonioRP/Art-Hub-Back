@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Artists;
 use App\Filament\Resources\Artists\Pages\CreateArtist;
 use App\Filament\Resources\Artists\Pages\EditArtist;
 use App\Filament\Resources\Artists\Pages\ListArtists;
-use App\Filament\Resources\Artists\RelationManagers\ReviewNotesRelationManager;
+use App\Filament\RelationManagers\ReviewNotesRelationManager;
 use App\Filament\Resources\Artists\Schemas\ArtistForm;
 use App\Filament\Resources\Artists\Tables\ArtistsTable;
 use App\Models\Artist;

@@ -2,10 +2,13 @@
 
 namespace App\Filament\Tables;
 
+use App\Filament\Actions\ArtworkReviewActions;
 use App\Filament\Schemas\ArtworkFields;
 use App\Models\Artwork;
 use App\Support\Disks;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -66,9 +69,10 @@ final class ArtworksTable
                     ? SelectFilter::make('artist_id')->label('Artista')->relationship('artist', 'name')->searchable()->preload()
                     : null,
             ])))
-            ->recordActions([
-                EditAction::make(),
-            ])
+            ->recordActions($forAdmin
+                ? [EditAction::make(), ActionGroup::make(ArtworkReviewActions::forAdmin())->label('Revisar')->button()]
+                // El artista edita borradores y observadas; las demás solo las ve.
+                : [EditAction::make(), ViewAction::make()->visible(fn (Artwork $record) => ! auth()->user()->can('update', $record))])
             ->emptyStateHeading('Todavía no hay obras')
             ->emptyStateDescription($forAdmin ? null : 'Registra tu primera obra con «Nueva obra».');
     }

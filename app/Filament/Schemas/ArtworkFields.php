@@ -15,8 +15,8 @@ use Filament\Schemas\Components\Utilities\Get;
 final class ArtworkFields
 {
     /**
-     * @param bool $forAdmin el admin elige el artista y el estado editorial;
-     *                       el artista solo ve el estado (el flujo de revisión es de la semana 3).
+     * @param bool $forAdmin el admin elige el artista. El estado editorial no se edita
+     *                       aquí: cambia con las acciones del flujo de revisión (§10).
      * @return array<\Filament\Schemas\Components\Component>
      */
     public static function sections(bool $forAdmin): array
@@ -33,18 +33,12 @@ final class ArtworkFields
                         ->badge()
                         ->formatStateUsing(fn (string $state) => Artwork::STATUS_LABELS[$state] ?? $state)
                         ->color(fn (string $state) => self::statusColor($state))
-                        ->hidden(fn (string $operation) => $forAdmin || $operation === 'create'),
+                        ->hiddenOn('create'),
                     Select::make('artist_id')
                         ->label('Artista')
                         ->relationship('artist', 'name')
                         ->searchable()
                         ->preload()
-                        ->required()
-                        ->visible($forAdmin),
-                    Select::make('status')
-                        ->label('Estado')
-                        ->options(Artwork::STATUS_LABELS)
-                        ->default(Artwork::STATUS_BORRADOR)
                         ->required()
                         ->visible($forAdmin),
                     TextInput::make('title')

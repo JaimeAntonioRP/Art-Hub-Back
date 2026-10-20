@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Artworks;
 
 use App\Filament\RelationManagers\ArtworkDocumentsRelationManager;
+use App\Filament\RelationManagers\ArtworkHistoryRelationManager;
 use App\Filament\RelationManagers\ArtworkImagesRelationManager;
+use App\Filament\RelationManagers\ReviewNotesRelationManager;
 use App\Filament\Resources\Artworks\Pages\CreateArtwork;
 use App\Filament\Resources\Artworks\Pages\EditArtwork;
 use App\Filament\Resources\Artworks\Pages\ListArtworks;
@@ -50,7 +52,22 @@ class ArtworkResource extends Resource
         return [
             ArtworkImagesRelationManager::class,
             ArtworkDocumentsRelationManager::class,
+            ReviewNotesRelationManager::class,
+            ArtworkHistoryRelationManager::class,
         ];
+    }
+
+    /** Obras esperando revisión, en el menú lateral. */
+    public static function getNavigationBadge(): ?string
+    {
+        $pending = Artwork::where('status', Artwork::STATUS_EN_REVISION)->count();
+
+        return $pending ? (string) $pending : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
     }
 
     public static function getPages(): array

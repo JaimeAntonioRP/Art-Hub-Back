@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\ArtworkReviewed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 class Artwork extends Model
 {
@@ -24,6 +27,37 @@ class Artwork extends Model
     public const CURRENCIES = ['PEN', 'USD'];
 
     public const STATUS_BORRADOR = 'borrador';
+    public const STATUS_EN_REVISION = 'en_revision';
+    public const STATUS_OBSERVADO = 'observado';
+    public const STATUS_RECHAZADO = 'rechazado';
+    public const STATUS_APROBADO = 'aprobado';
+    public const STATUS_DESPUBLICADO = 'despublicado';
+
+    /**
+     * Flujo de revisión (§10): estado actual => estados a los que puede pasar cada rol.
+     * El artista envía y subsana; el administrador revisa y publica. Las obras que
+     * carga el propio admin (p. ej. de artistas sin cuenta) pueden publicarse sin envío.
+     */
+    private const ARTIST_TRANSITIONS = [
+        'borrador'  => ['en_revision'],
+        'observado' => ['en_revision'],
+    ];
+
+    private const ADMIN_TRANSITIONS = [
+        'borrador'     => ['aprobado', 'publicado'],
+        'en_revision'  => ['aprobado', 'observado', 'rechazado', 'publicado'],
+        'observado'    => ['aprobado', 'rechazado'],
+        'rechazado'    => ['borrador'],
+        'aprobado'     => ['publicado', 'observado'],
+        'publicado'    => ['despublicado'],
+        'despublicado' => ['publicado', 'borrador'],
+    ];
+
+    /** Estados en los que el administrador debe dejar un motivo. */
+    private const NEEDS_NOTE = ['observado', 'rechazado'];
+
+    /** El artista solo edita mientras la obra no está en manos del equipo de revisión. */
+    public const ARTIST_EDITABLE = ['borrador', 'observado'];
 
     public const STATUS_LABELS = [
         'borrador'     => 'Borrador',
@@ -75,12 +109,16 @@ class Artwork extends Model
         'show_price'   => true,
     ];
 
-    protected $with = ['artist:id,name,slug,origin', 'images'];
+    // user_id hace falta para avisar al artista por correo (Artwork::transitionTo).
+    protected $with = ['artist:id,user_id,name,slug,origin', 'images'];
 
     protected $appends = ['artist_name', 'image_url', 'dimensions'];
 
     /** URL de imagen recibida por el campo de compatibilidad; se guarda como imagen principal. */
     private ?string $pendingImageUrl = null;
+
+    /** Nota de la revisión en curso; se guarda en el evento del historial. */
+    private ?string $pendingNote = null;
 
     protected function casts(): array
     {
@@ -114,10 +152,11 @@ class Artwork extends Model
 
         static::updated(function (Artwork $artwork) {
             if ($artwork->wasChanged('status')) {
-                $artwork->recordEvent('estado_cambiado', [
-                    'de' => $artwork->getOriginal('status'),
-                    'a'  => $artwork->status,
-                ]);
+                $artwork->recordEvent('estado_cambiado', array_filter([
+                    'de'   => $artwork->getOriginal('status'),
+                    'a'    => $artwork->status,
+                    'nota' => $artwork->pendingNote,
+                ]));
             }
             if ($artwork->wasChanged('availability')) {
                 $artwork->recordEvent('disponibilidad_cambiada', [
@@ -189,6 +228,60 @@ class Artwork extends Model
     public function primaryImage(): ?ArtworkImage
     {
         return $this->images->firstWhere('is_primary', true) ?? $this->images->first();
+    }
+
+    public function canTransitionTo(string $status, User $by): bool
+    {
+        $map = $by->isAdmin() ? self::ADMIN_TRANSITIONS : self::ARTIST_TRANSITIONS;
+
+        return in_array($status, $map[$this->status] ?? [], true);
+    }
+
+    /** Lo que falta para enviar la obra a revisión (vacío si está completa). */
+    public function missingForReview(): array
+    {
+        return array_keys(array_filter([
+            'una imagen' => $this->images()->doesntExist(),
+            'el alto y el ancho' => ! $this->height_cm || ! $this->width_cm,
+            'la técnica' => blank($this->technique),
+        ]));
+    }
+
+    /**
+     * Cambia el estado editorial, guarda la observación, deja el evento en el
+     * historial y, si decide el admin, avisa al artista por correo.
+     */
+    public function transitionTo(string $status, User $by, ?string $note = null): void
+    {
+        if (! $this->canTransitionTo($status, $by)) {
+            throw new InvalidArgumentException("No se puede pasar de {$this->status} a {$status}.");
+        }
+
+        $note = trim((string) $note);
+        if (in_array($status, self::NEEDS_NOTE, true) && $note === '') {
+            throw new InvalidArgumentException('Indica el motivo de la observación o el rechazo.');
+        }
+        if ($status === self::STATUS_EN_REVISION && $missing = $this->missingForReview()) {
+            throw new InvalidArgumentException('Antes de enviarla, agrega '.implode(', ', $missing).'.');
+        }
+
+        DB::transaction(function () use ($status, $by, $note) {
+            $this->pendingNote = $note ?: null;
+            $this->update(['status' => $status]);
+            $this->pendingNote = null;
+
+            if ($note !== '') {
+                $this->reviewNotes()->create(['author_id' => $by->id, 'body' => $note]);
+            }
+            // Al reenviar, las observaciones anteriores quedan como subsanadas.
+            if ($status === self::STATUS_EN_REVISION) {
+                $this->reviewNotes()->whereNull('resolved_at')->update(['resolved_at' => now()]);
+            }
+        });
+
+        if ($by->isAdmin() && $this->artist?->user && ! $this->artist->user->is($by)) {
+            $this->artist->user->notify(new ArtworkReviewed($this, $note ?: null));
+        }
     }
 
     public function recordEvent(string $type, ?array $payload = null): void

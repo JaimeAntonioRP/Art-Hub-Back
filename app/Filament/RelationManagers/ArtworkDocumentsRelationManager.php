@@ -38,9 +38,10 @@ class ArtworkDocumentsRelationManager extends RelationManager
 
     protected static ?string $pluralModelLabel = 'documentos';
 
+    /** Se edita junto con la obra: en la vista, o si la obra está en revisión o publicada (para el artista), es solo lectura. */
     public function isReadOnly(): bool
     {
-        return false;
+        return parent::isReadOnly() || ! auth()->user()?->can('update', $this->getOwnerRecord());
     }
 
     public function form(Schema $schema): Schema

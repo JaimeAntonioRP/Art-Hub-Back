@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Artists\RelationManagers;
+namespace App\Filament\RelationManagers;
 
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-/** Historial de observaciones del perfil. Solo lectura: se crean con las acciones de revisión. */
+/** Observaciones de la revisión (de un perfil de artista o de una obra). Solo lectura: se crean con las acciones de revisión. */
 class ReviewNotesRelationManager extends RelationManager
 {
     protected static string $relationship = 'reviewNotes';

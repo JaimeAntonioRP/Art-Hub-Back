@@ -32,9 +32,10 @@ class ArtworkPolicy
             && ! in_array($user->artist->status, [Artist::STATUS_RECHAZADO, Artist::STATUS_INACTIVO], true);
     }
 
+    /** Mientras la obra está en revisión o publicada, la gestiona el equipo de ArtHub (§10). */
     public function update(User $user, Artwork $artwork): bool
     {
-        return $this->owns($user, $artwork);
+        return $this->owns($user, $artwork) && in_array($artwork->status, Artwork::ARTIST_EDITABLE, true);
     }
 
     /** El artista solo borra obras que aún no envió a revisión. */
@@ -45,6 +46,7 @@ class ArtworkPolicy
 
     private function owns(User $user, Artwork $artwork): bool
     {
-        return $user->artist !== null && $artwork->artist_id === $user->artist->id;
+        // Enteros: según el driver, el id leído de la base puede llegar como texto.
+        return $user->artist !== null && (int) $artwork->artist_id === (int) $user->artist->id;
     }
 }

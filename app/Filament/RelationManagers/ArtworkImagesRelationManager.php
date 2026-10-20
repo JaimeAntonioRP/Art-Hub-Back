@@ -29,9 +29,10 @@ class ArtworkImagesRelationManager extends RelationManager
 
     protected static ?string $pluralModelLabel = 'imágenes';
 
+    /** Se edita junto con la obra: en la vista, o si la obra está en revisión o publicada (para el artista), es solo lectura. */
     public function isReadOnly(): bool
     {
-        return false;
+        return parent::isReadOnly() || ! auth()->user()?->can('update', $this->getOwnerRecord());
     }
 
     /** Tipos que se eligen a mano; «principal» se asigna con su propia acción. */
@@ -105,7 +106,7 @@ class ArtworkImagesRelationManager extends RelationManager
                 Action::make('makePrimary')
                     ->label('Usar como principal')
                     ->icon(Heroicon::OutlinedStar)
-                    ->visible(fn (ArtworkImage $record) => ! $record->is_primary)
+                    ->visible(fn (ArtworkImage $record) => ! $record->is_primary && ! $this->isReadOnly())
                     ->action(fn (ArtworkImage $record) => $record->makePrimary()),
                 EditAction::make()
                     ->visible(fn (ArtworkImage $record) => ! $record->is_primary),

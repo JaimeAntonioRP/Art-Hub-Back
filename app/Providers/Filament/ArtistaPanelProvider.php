@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Widgets\AccountWidget;
@@ -26,7 +27,9 @@ class ArtistaPanelProvider extends PanelProvider
             ->tap(fn (Panel $panel) => ArtHubBranding::apply($panel, 'Artistas'))
             ->discoverResources(in: app_path('Filament/Artista/Resources'), for: 'App\Filament\Artista\Resources')
             ->discoverPages(in: app_path('Filament/Artista/Pages'), for: 'App\Filament\Artista\Pages')
-
+            ->pages([
+                Dashboard::class, // escritorio con los indicadores del artista (§15)
+            ])
             ->discoverWidgets(in: app_path('Filament/Artista/Widgets'), for: 'App\Filament\Artista\Widgets')
             ->widgets([
                 AccountWidget::class,
