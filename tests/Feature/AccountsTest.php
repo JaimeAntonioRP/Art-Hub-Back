@@ -40,7 +40,7 @@ class AccountsTest extends TestCase
             ->assertCreated()
             ->assertJsonPath('user.role', 'artista')
             ->assertJsonPath('user.artist_status', 'pendiente')
-            ->assertJsonPath('user.artist_panel_url', url('/artista'));
+            ->assertJsonPath('user.artist_panel_url', url('/ingresar'));
 
         $artist = User::where('email', 'ana@example.com')->first()->artist;
         $this->assertSame('ana-quispe', $artist->slug);

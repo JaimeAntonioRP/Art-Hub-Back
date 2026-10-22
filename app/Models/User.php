@@ -79,6 +79,31 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === self::ROLE_ADMIN;
     }
 
+    /** Adónde va cada rol al iniciar sesión en el login único. */
+    public function homeUrl(): string
+    {
+        return match ($this->role) {
+            self::ROLE_ADMIN   => url('/admin'),
+            self::ROLE_ARTISTA => url('/artista'),
+            default            => config('app.frontend_url').'/obras',
+        };
+    }
+
+    /**
+     * ¿Puede ir a esta ruta del backend después de iniciar sesión? Sirve para respetar
+     * el enlace al que iba (por ejemplo, el de un correo) sin mandarlo a un panel ajeno.
+     */
+    public function mayVisitPath(string $path): bool
+    {
+        $allowed = match ($this->role) {
+            self::ROLE_ADMIN   => 'admin|expediente',
+            self::ROLE_ARTISTA => 'artista|expediente',
+            default            => null,
+        };
+
+        return $allowed && preg_match('#^/('.$allowed.')(/|$)#', '/'.ltrim($path, '/')) === 1;
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->is_active && (self::PANEL_ROLES[$panel->getId()] ?? null) === $this->role;

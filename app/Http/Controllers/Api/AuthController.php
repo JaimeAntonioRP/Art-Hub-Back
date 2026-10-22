@@ -158,7 +158,7 @@ class AuthController extends Controller
 
         if ($user->role === User::ROLE_ARTISTA) {
             $data['artist_status'] = $user->artist?->status;
-            $data['artist_panel_url'] = url('/artista');
+            $data['artist_panel_url'] = route('login'); // el login único lo lleva a su panel
         }
 
         return $data;

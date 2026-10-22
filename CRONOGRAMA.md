@@ -1,7 +1,7 @@
 # ArtHub · Cronograma y estado del proyecto
 
 > Este archivo es igual en **Art-Hub-Back** y **Art-Hub-Front**. Sirve para retomar el trabajo en otra máquina.
-> Última actualización: 22 de octubre de 2026 (semana 6 terminada).
+> Última actualización: 22 de octubre de 2026 (semana 6 terminada + login único).
 
 Las bases son la propuesta *ArtHub_2_Etapas.docx* (dos etapas de S/ 6,000 cada una) y la hoja de ruta acordada:
 
@@ -17,13 +17,13 @@ Quedan fuera del alcance: pagos en línea, blockchain, NFT, IA, fraccionamiento 
 
 | Repo | Rama de trabajo (la última) | PR abierto |
 |---|---|---|
-| Art-Hub-Back (Laravel 12 + Filament 4) | `semana-6-certificados` | [Art-Hub-Back#1](https://github.com/JaimeAntonioRP/Art-Hub-Back/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
-| Art-Hub-Front (Next.js 16) | `semana-6-certificados` | [Art-Hub-Front#1](https://github.com/JaimeAntonioRP/Art-Hub-Front/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
+| Art-Hub-Back (Laravel 12 + Filament 4) | `login-unico` | [Art-Hub-Back#1](https://github.com/JaimeAntonioRP/Art-Hub-Back/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
+| Art-Hub-Front (Next.js 16) | `login-unico` | [Art-Hub-Front#1](https://github.com/JaimeAntonioRP/Art-Hub-Front/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
 
 Las ramas están **apiladas**: cada semana sale de la anterior, así que la última rama ya contiene todo.
 
-- **Back:** `semana-0-limpieza-esquema` → `semana-1-usuarios-artistas` → `semana-2-obras` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` → `semana-6-certificados`
-- **Front:** `semana-0-limpieza` → `paleta-colores` → `semana-1-usuarios-artistas` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` (solo este archivo) → `semana-6-certificados`
+- **Back:** `semana-0-limpieza-esquema` → `semana-1-usuarios-artistas` → `semana-2-obras` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` → `semana-6-certificados` → `login-unico`
+- **Front:** `semana-0-limpieza` → `paleta-colores` → `semana-1-usuarios-artistas` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` (solo este archivo) → `semana-6-certificados` → `login-unico`
 
 Los PR abiertos cubren la Etapa 1. Para la Etapa 2, cuando se fusionen, abrir un PR nuevo desde la última rama.
 
@@ -44,7 +44,7 @@ Filament necesita `intl`. En XAMPP, esa extensión viene desactivada: actívala 
 ```bash
 git clone https://github.com/JaimeAntonioRP/Art-Hub-Back.git
 cd Art-Hub-Back
-git checkout semana-6-certificados
+git checkout login-unico
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -75,7 +75,7 @@ php artisan storage:link
 php artisan serve --port=8001
 ```
 
-- Paneles: `http://127.0.0.1:8001/admin` (administrador) y `http://127.0.0.1:8001/artista` (artista).
+- **Login único:** `http://127.0.0.1:8001/ingresar` (o `/login` en el sitio, que redirige ahí). Cada rol sigue a su lugar: el admin a `/admin`, el artista a `/artista` y el comprador al sitio. Los paneles ya no tienen login propio, y al cerrar sesión se vuelve a `/ingresar`. Si alguien abre un enlace de un correo sin sesión, después de ingresar vuelve a ese enlace, siempre que sea de su propio panel.
 - **Cuentas de demostración** (solo con `APP_ENV=local`; las crea `php artisan migrate --seed` o `php artisan db:seed --class=DemoAccountsSeeder`). La contraseña de las tres es `DEMO_PASSWORD`, por defecto `arthub-demo`:
 
   | Correo | Rol | Entra en |
@@ -85,7 +85,7 @@ php artisan serve --port=8001
   | `comprador@arthub.test` | Comprador | sitio público |
 
   En producción no se crean nunca. Ahí el administrador inicial es `ADMIN_EMAIL` con `ADMIN_PASSWORD`.
-- Tests: `php vendor/bin/phpunit`. Deben salir **84 tests en verde** (tardan unos 20 s por la generación de PDF). `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
+- Tests: `php vendor/bin/phpunit`. Deben salir **91 tests en verde** (tardan unos 20 s por la generación de PDF). `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
 
 ### Frontend (Art-Hub-Front)
 
@@ -94,7 +94,7 @@ Requisito: Node 20 o superior.
 ```bash
 git clone https://github.com/JaimeAntonioRP/Art-Hub-Front.git
 cd Art-Hub-Front
-git checkout semana-6-certificados
+git checkout login-unico
 npm install
 echo "NEXT_PUBLIC_API_URL=http://127.0.0.1:8001/api" > .env.local
 npm run dev -- -p 3001
@@ -121,6 +121,8 @@ Notas:
 
 | 6 · Certificado, QR y verificación | §19 §20 §22 | ✅ | El admin emite, reemite o anula desde la pestaña **Certificados** de la obra. El PDF (dompdf) lleva foto, ficha, documentos relevantes con su huella, la huella de los datos y un QR generado en el servidor. Estados vigente, anulado (con motivo) y reemplazado. Portal `/verificar` por número o QR, y comprobación de un PDF en el navegador. |
 
+| Login único | §5 | ✅ | Una sola página `/ingresar` para todos los roles, con redirección según el rol. Freno a la fuerza bruta (6 intentos por minuto) y aviso si el formulario expiró. La recuperación de contraseña es la del sitio (`/recuperar`). |
+
 \* Con pendientes menores, listados en la sección 4.
 
 ---
@@ -138,6 +140,8 @@ Notas:
 - [ ] **QA responsive final (§17)** en todas las páginas: escritorio, tablet y móvil (375 px), con contraste AA. Catálogo, ficha y portada ya están revisados.
 - [ ] **Manual básico de uso** (admin y artista) y **documentación técnica** de despliegue (semana 4 del plan).
 - [ ] Desplegar y probar con el cliente. **Firmar la aceptación de la Etapa 1.**
+
+- [ ] **Decidir qué hace el comprador con su cuenta.** Hoy entra y vuelve al catálogo sin nada propio. Propuesta: una página «Mis solicitudes» y que el formulario de solicitud se rellene solo con sus datos.
 
 ### Pendientes de contenido (los ve el cliente)
 

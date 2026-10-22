@@ -41,7 +41,7 @@ class SiteContentTest extends TestCase
             ->assertJsonPath('header_cta', ['label' => 'Ver colección', 'url' => '/obras'])
             ->assertJsonMissingPath('utility')
             ->assertJsonPath('footer.columns.0.title', 'Colección')
-            ->assertJsonPath('footer.columns.2.links.1.url', rtrim(config('app.url'), '/').'/artista')
+            ->assertJsonPath('footer.columns.2.links.1.url', rtrim(config('app.url'), '/').'/ingresar')
             ->assertJsonPath('contact.email', 'info@arthub.pe');
     }
 

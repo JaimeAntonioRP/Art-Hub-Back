@@ -27,8 +27,8 @@ final class ArtHubBranding
                 'warning' => Color::hex('#C27E2C'), // ocre
                 'danger'  => Color::hex('#B8653B'), // terracota
             ])
-            ->login()
-            ->passwordReset()
+            // Sin login propio: los dos paneles usan el login único de /ingresar (ruta «login»),
+            // y la recuperación de contraseña es la del sitio público.
             ->profile();
     }
 }

@@ -53,7 +53,7 @@ class SiteContentSeeder extends Seeder
                 ]],
                 ['title' => 'Para artistas', 'links' => [
                     ['label' => 'Publica tus obras', 'url' => '/registro'],
-                    ['label' => 'Ingresar a mi panel', 'url' => rtrim(config('app.url'), '/').'/artista'],
+                    ['label' => 'Ingresar', 'url' => rtrim(config('app.url'), '/').'/ingresar'],
                 ]],
             ],
             'copyright' => '© '.date('Y').' ArtHub S.A.C. Todos los derechos reservados.',
