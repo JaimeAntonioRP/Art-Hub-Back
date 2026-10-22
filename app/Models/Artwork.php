@@ -215,6 +215,22 @@ class Artwork extends Model
         return $this->hasMany(CommercialRequest::class);
     }
 
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    public function ownerships(): HasMany
+    {
+        return $this->hasMany(Ownership::class);
+    }
+
+    /** Propietario actual registrado (§25). Si no hay ninguno, la obra sigue siendo del artista. */
+    public function currentOwnership(): HasOne
+    {
+        return $this->hasOne(Ownership::class)->ofMany(['id' => 'max'], fn ($q) => $q->whereNull('to_date'));
+    }
+
     public function certificates(): HasMany
     {
         return $this->hasMany(Certificate::class);

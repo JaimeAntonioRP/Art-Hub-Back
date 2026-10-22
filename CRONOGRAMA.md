@@ -1,7 +1,7 @@
 # ArtHub · Cronograma y estado del proyecto
 
 > Este archivo es igual en **Art-Hub-Back** y **Art-Hub-Front**. Sirve para retomar el trabajo en otra máquina.
-> Última actualización: 22 de octubre de 2026 (semana 6 terminada + login único).
+> Última actualización: 22 de octubre de 2026 (semana 7 terminada).
 
 Las bases son la propuesta *ArtHub_2_Etapas.docx* (dos etapas de S/ 6,000 cada una) y la hoja de ruta acordada:
 
@@ -17,12 +17,12 @@ Quedan fuera del alcance: pagos en línea, blockchain, NFT, IA, fraccionamiento 
 
 | Repo | Rama de trabajo (la última) | PR abierto |
 |---|---|---|
-| Art-Hub-Back (Laravel 12 + Filament 4) | `login-unico` | [Art-Hub-Back#1](https://github.com/JaimeAntonioRP/Art-Hub-Back/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
-| Art-Hub-Front (Next.js 16) | `login-unico` | [Art-Hub-Front#1](https://github.com/JaimeAntonioRP/Art-Hub-Front/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
+| Art-Hub-Back (Laravel 12 + Filament 4) | `semana-7-propietarios-ventas` | [Art-Hub-Back#1](https://github.com/JaimeAntonioRP/Art-Hub-Back/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
+| Art-Hub-Front (Next.js 16) | `semana-7-propietarios-ventas` | [Art-Hub-Front#1](https://github.com/JaimeAntonioRP/Art-Hub-Front/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
 
 Las ramas están **apiladas**: cada semana sale de la anterior, así que la última rama ya contiene todo.
 
-- **Back:** `semana-0-limpieza-esquema` → `semana-1-usuarios-artistas` → `semana-2-obras` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` → `semana-6-certificados` → `login-unico`
+- **Back:** `semana-0-limpieza-esquema` → `semana-1-usuarios-artistas` → `semana-2-obras` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` → `semana-6-certificados` → `login-unico` → `semana-7-propietarios-ventas` (solo este archivo) → `semana-7-propietarios-ventas`
 - **Front:** `semana-0-limpieza` → `paleta-colores` → `semana-1-usuarios-artistas` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` (solo este archivo) → `semana-6-certificados` → `login-unico`
 
 Los PR abiertos cubren la Etapa 1. Para la Etapa 2, cuando se fusionen, abrir un PR nuevo desde la última rama.
@@ -44,7 +44,7 @@ Filament necesita `intl`. En XAMPP, esa extensión viene desactivada: actívala 
 ```bash
 git clone https://github.com/JaimeAntonioRP/Art-Hub-Back.git
 cd Art-Hub-Back
-git checkout login-unico
+git checkout semana-7-propietarios-ventas
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -85,7 +85,7 @@ php artisan serve --port=8001
   | `comprador@arthub.test` | Comprador | sitio público |
 
   En producción no se crean nunca. Ahí el administrador inicial es `ADMIN_EMAIL` con `ADMIN_PASSWORD`.
-- Tests: `php vendor/bin/phpunit`. Deben salir **91 tests en verde** (tardan unos 20 s por la generación de PDF). `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
+- Tests: `php vendor/bin/phpunit`. Deben salir **98 tests en verde** (tardan unos 20 s por la generación de PDF). `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
 
 ### Frontend (Art-Hub-Front)
 
@@ -94,7 +94,7 @@ Requisito: Node 20 o superior.
 ```bash
 git clone https://github.com/JaimeAntonioRP/Art-Hub-Front.git
 cd Art-Hub-Front
-git checkout login-unico
+git checkout semana-7-propietarios-ventas
 npm install
 echo "NEXT_PUBLIC_API_URL=http://127.0.0.1:8001/api" > .env.local
 npm run dev -- -p 3001
@@ -122,6 +122,8 @@ Notas:
 | 6 · Certificado, QR y verificación | §19 §20 §22 | ✅ | El admin emite, reemite o anula desde la pestaña **Certificados** de la obra. El PDF (dompdf) lleva foto, ficha, documentos relevantes con su huella, la huella de los datos y un QR generado en el servidor. Estados vigente, anulado (con motivo) y reemplazado. Portal `/verificar` por número o QR, y comprobación de un PDF en el navegador. |
 
 | Login único | §5 | ✅ | Una sola página `/ingresar` para todos los roles, con redirección según el rol. Freno a la fuerza bruta (6 intentos por minuto) y aviso si el formulario expiró. La recuperación de contraseña es la del sitio (`/recuperar`). |
+
+| 7 · Propietarios y ventas | §25 §26 | ✅ | Pestañas **Ventas** y **Propietarios** en la obra (solo el admin). Registro de reserva, venta o transferencia, también desde una solicitud. La disponibilidad y el propietario actual se actualizan solos. Un registro equivocado se anula con motivo y se deshacen sus efectos. Listado general en **Ventas**. |
 
 \* Con pendientes menores, listados en la sección 4.
 
@@ -202,11 +204,21 @@ Los próximos eventos del historial (certificado emitido o anulado, venta, cambi
   - `FRONTEND_URL` debe ser el dominio real, porque es el enlace que queda impreso en el QR. Si cambia el dominio, hay que reemitir.
   - Los certificados de la versión anterior de la plataforma quedan **anulados** por migración, con su motivo.
 
-### Semana 7 · Propietarios y ventas (§25 §26)
-- [ ] Registro manual de una reserva, venta o transferencia. Puede partir de una **solicitud confirmada**, que ya existe en el panel.
-- [ ] Al registrar una venta, la disponibilidad y el propietario actual se actualizan solos.
-- [ ] Historial de propietarios.
-- **Listo cuando:** registrar una venta pone la obra en «vendida», crea el nuevo propietario y deja el evento en el historial.
+### Semana 7 · Propietarios y ventas (§25 §26) ✅
+- [x] **Registro manual** en la pestaña **Ventas** de la obra, o desde una **solicitud** con el botón «Registrar reserva o venta», que rellena los datos del interesado. Lo que se ofrece depende de la disponibilidad:
+  - **Reserva:** solo para una obra disponible. La obra pasa a «Reservada» y el propietario no cambia.
+  - **Venta:** para una obra disponible o reservada. Pasa a «Vendida»; el precio final es obligatorio y el comprador queda como propietario actual.
+  - **Transferencia:** solo para obras vendidas o no a la venta (herencia, donación, reventa privada). Cambia el propietario y la disponibilidad no cambia.
+- [x] **Historial de propietarios** (pestaña **Propietarios**):
+  - El primer propietario es el artista, desde que registró la obra; esa fila se crea con la primera venta o transferencia.
+  - El propietario actual es el que no tiene fecha de fin.
+- [x] **Solicitud de origen:** al registrar una venta queda «Confirmada»; con una reserva, «En evaluación».
+- [x] **Anular un registro equivocado:** pide motivo y solo se puede con el último registro vigente. La disponibilidad y el propietario vuelven a como estaban, y el registro queda visible como «Anulado».
+- [x] **Historial de la obra:** registra reserva, venta y transferencia, y «Registro de venta anulado». **Sin datos del comprador**, porque el artista también ve el historial.
+- [x] **Privacidad:** solo el admin ve compradores, precios finales y propietarios. Las pestañas no aparecen en el panel del artista.
+- [x] **Listado general «Ventas»** en el menú del admin, con filtros por tipo y estado (por defecto, los vigentes).
+- **Cumplido:** registrar una venta pone la obra en «Vendida», crea el nuevo propietario y deja el evento en el historial. Lo probé en el panel y lo cubren los tests de `tests/Feature/SaleTest.php`.
+- **Pendiente con el cliente:** ¿los propietarios deben verse en el portal de verificación? Hoy **no** se muestran, porque son datos personales.
 
 ### Semana 8 · Realidad aumentada y cierre (§27)
 - [ ] Generar un plano GLB desde la imagen principal y las medidas reales. Las obras 2D no necesitan modelado.

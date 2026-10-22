@@ -6,6 +6,8 @@ use App\Filament\RelationManagers\ArtworkCertificatesRelationManager;
 use App\Filament\RelationManagers\ArtworkDocumentsRelationManager;
 use App\Filament\RelationManagers\ArtworkHistoryRelationManager;
 use App\Filament\RelationManagers\ArtworkImagesRelationManager;
+use App\Filament\RelationManagers\ArtworkOwnershipsRelationManager;
+use App\Filament\RelationManagers\ArtworkSalesRelationManager;
 use App\Filament\RelationManagers\ReviewNotesRelationManager;
 use App\Filament\Resources\Artworks\Pages\CreateArtwork;
 use App\Filament\Resources\Artworks\Pages\EditArtwork;
@@ -55,6 +57,8 @@ class ArtworkResource extends Resource
             ArtworkDocumentsRelationManager::class,
             ReviewNotesRelationManager::class,
             ArtworkCertificatesRelationManager::class,
+            ArtworkSalesRelationManager::class,
+            ArtworkOwnershipsRelationManager::class,
             ArtworkHistoryRelationManager::class,
         ];
     }

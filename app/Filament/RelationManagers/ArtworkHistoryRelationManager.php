@@ -5,11 +5,13 @@ namespace App\Filament\RelationManagers;
 use App\Models\Artwork;
 use App\Models\ArtworkEvent;
 use App\Models\CommercialRequest;
+use App\Models\Sale;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 /** Historial operativo de la obra (§11), en orden cronológico. Solo lectura. */
 class ArtworkHistoryRelationManager extends RelationManager
@@ -32,6 +34,10 @@ class ArtworkHistoryRelationManager extends RelationManager
         'certificado_emitido' => 'Certificado emitido',
         'certificado_reemplazado' => 'Certificado reemplazado',
         'certificado_anulado' => 'Certificado anulado',
+        'reserva_registrada' => 'Reserva registrada',
+        'venta_registrada' => 'Venta registrada',
+        'transferencia_registrada' => 'Transferencia registrada',
+        'registro_anulado' => 'Registro de venta anulado',
     ];
 
     /** Grupos para filtrar el historial. */
@@ -40,6 +46,7 @@ class ArtworkHistoryRelationManager extends RelationManager
         'expediente' => ['documento_agregado', 'documento_versionado', 'documento_eliminado', 'integridad_fallida'],
         'solicitudes' => ['solicitud_recibida', 'solicitud_actualizada'],
         'certificados' => ['certificado_emitido', 'certificado_reemplazado', 'certificado_anulado'],
+        'ventas' => ['reserva_registrada', 'venta_registrada', 'transferencia_registrada', 'registro_anulado'],
     ];
 
     /** Nombres legibles de los campos de la ficha, para «Ficha modificada». */
@@ -72,10 +79,19 @@ class ArtworkHistoryRelationManager extends RelationManager
                     ->color(fn (string $state) => match ($state) {
                         'estado_cambiado' => 'info',
                         'integridad_fallida', 'certificado_anulado' => 'danger',
-                        'certificado_emitido' => 'success',
+                        'certificado_emitido', 'venta_registrada' => 'success',
                         'certificado_emitido' => ($p['numero'] ?? '—').(isset($p['huella_pdf']) ? '. Huella del PDF '.substr($p['huella_pdf'], 0, 12).'…' : ''),
             'certificado_reemplazado' => sprintf('%s, reemplazado por %s', $p['numero'] ?? '—', $p['por'] ?? '—'),
             'certificado_anulado' => sprintf('%s. Motivo: %s', $p['numero'] ?? '—', $p['motivo'] ?? '—'),
+            'reserva_registrada', 'venta_registrada', 'transferencia_registrada' => isset($p['fecha'])
+                ? 'Con fecha '.Carbon::parse($p['fecha'])->format('d/m/Y')
+                : null,
+            'registro_anulado' => sprintf(
+                '%s del %s. Motivo: %s',
+                Sale::TYPE_LABELS[$p['tipo'] ?? ''] ?? 'Registro',
+                isset($p['fecha']) ? Carbon::parse($p['fecha'])->format('d/m/Y') : '—',
+                $p['motivo'] ?? '—',
+            ),
             'solicitud_recibida' => 'success',
                         default => 'gray',
                     }),
@@ -90,7 +106,7 @@ class ArtworkHistoryRelationManager extends RelationManager
             ->filters([
                 SelectFilter::make('grupo')
                     ->label('Mostrar')
-                    ->options(['ficha' => 'Ficha y estados', 'expediente' => 'Expediente', 'certificados' => 'Certificados', 'solicitudes' => 'Solicitudes'])
+                    ->options(['ficha' => 'Ficha y estados', 'expediente' => 'Expediente', 'certificados' => 'Certificados', 'solicitudes' => 'Solicitudes', 'ventas' => 'Ventas y propietarios'])
                     ->query(fn (Builder $query, array $data) => $data['value']
                         ? $query->whereIn('type', self::TYPE_GROUPS[$data['value']] ?? [])
                         : $query),
