@@ -76,6 +76,15 @@ php artisan serve --port=8001
 ```
 
 - Paneles: `http://127.0.0.1:8001/admin` (administrador) y `http://127.0.0.1:8001/artista` (artista).
+- **Cuentas de demostración** (solo con `APP_ENV=local`; las crea `php artisan migrate --seed` o `php artisan db:seed --class=DemoAccountsSeeder`). La contraseña de las tres es `DEMO_PASSWORD`, por defecto `arthub-demo`:
+
+  | Correo | Rol | Entra en |
+  |---|---|---|
+  | `admin@arthub.test` | Administrador | `/admin` |
+  | `artista@arthub.test` | Artista (administra la colección de Augusto Garcia Peñalva) | `/artista` |
+  | `comprador@arthub.test` | Comprador | sitio público |
+
+  En producción no se crean nunca. Ahí el administrador inicial es `ADMIN_EMAIL` con `ADMIN_PASSWORD`.
 - Tests: `php vendor/bin/phpunit`. Deben salir **84 tests en verde** (tardan unos 20 s por la generación de PDF). `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
 
 ### Frontend (Art-Hub-Front)
