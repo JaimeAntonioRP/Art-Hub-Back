@@ -29,6 +29,9 @@ class ArtworkHistoryRelationManager extends RelationManager
         'integridad_fallida' => 'Integridad no verificada',
         'solicitud_recibida' => 'Solicitud recibida',
         'solicitud_actualizada' => 'Solicitud actualizada',
+        'certificado_emitido' => 'Certificado emitido',
+        'certificado_reemplazado' => 'Certificado reemplazado',
+        'certificado_anulado' => 'Certificado anulado',
     ];
 
     /** Grupos para filtrar el historial. */
@@ -36,6 +39,7 @@ class ArtworkHistoryRelationManager extends RelationManager
         'ficha' => ['creada', 'editada', 'estado_cambiado', 'disponibilidad_cambiada'],
         'expediente' => ['documento_agregado', 'documento_versionado', 'documento_eliminado', 'integridad_fallida'],
         'solicitudes' => ['solicitud_recibida', 'solicitud_actualizada'],
+        'certificados' => ['certificado_emitido', 'certificado_reemplazado', 'certificado_anulado'],
     ];
 
     /** Nombres legibles de los campos de la ficha, para «Ficha modificada». */
@@ -67,8 +71,12 @@ class ArtworkHistoryRelationManager extends RelationManager
                     ->formatStateUsing(fn (string $state) => self::TYPE_LABELS[$state] ?? $state)
                     ->color(fn (string $state) => match ($state) {
                         'estado_cambiado' => 'info',
-                        'integridad_fallida' => 'danger',
-                        'solicitud_recibida' => 'success',
+                        'integridad_fallida', 'certificado_anulado' => 'danger',
+                        'certificado_emitido' => 'success',
+                        'certificado_emitido' => ($p['numero'] ?? '—').(isset($p['huella_pdf']) ? '. Huella del PDF '.substr($p['huella_pdf'], 0, 12).'…' : ''),
+            'certificado_reemplazado' => sprintf('%s, reemplazado por %s', $p['numero'] ?? '—', $p['por'] ?? '—'),
+            'certificado_anulado' => sprintf('%s. Motivo: %s', $p['numero'] ?? '—', $p['motivo'] ?? '—'),
+            'solicitud_recibida' => 'success',
                         default => 'gray',
                     }),
                 TextColumn::make('detail')
@@ -82,7 +90,7 @@ class ArtworkHistoryRelationManager extends RelationManager
             ->filters([
                 SelectFilter::make('grupo')
                     ->label('Mostrar')
-                    ->options(['ficha' => 'Ficha y estados', 'expediente' => 'Expediente', 'solicitudes' => 'Solicitudes'])
+                    ->options(['ficha' => 'Ficha y estados', 'expediente' => 'Expediente', 'certificados' => 'Certificados', 'solicitudes' => 'Solicitudes'])
                     ->query(fn (Builder $query, array $data) => $data['value']
                         ? $query->whereIn('type', self::TYPE_GROUPS[$data['value']] ?? [])
                         : $query),

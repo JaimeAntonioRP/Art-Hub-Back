@@ -32,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(6)
             ->by(strtolower((string) $request->input('email')).'|'.$request->ip()));
 
+        // Portal de verificación: consultas públicas, con un tope que frena el barrido de números.
+        RateLimiter::for('verify', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
+
         // Solicitudes sobre obras: freno a envíos repetidos o automatizados (sin CAPTCHA de terceros).
         RateLimiter::for('requests', fn (Request $request) => [
             Limit::perMinute(3)->by('minuto:'.$request->ip()),

@@ -1,7 +1,7 @@
 # ArtHub · Cronograma y estado del proyecto
 
 > Este archivo es igual en **Art-Hub-Back** y **Art-Hub-Front**. Sirve para retomar el trabajo en otra máquina.
-> Última actualización: 22 de octubre de 2026 (semana 5 terminada).
+> Última actualización: 22 de octubre de 2026 (semana 6 terminada).
 
 Las bases son la propuesta *ArtHub_2_Etapas.docx* (dos etapas de S/ 6,000 cada una) y la hoja de ruta acordada:
 
@@ -17,13 +17,13 @@ Quedan fuera del alcance: pagos en línea, blockchain, NFT, IA, fraccionamiento 
 
 | Repo | Rama de trabajo (la última) | PR abierto |
 |---|---|---|
-| Art-Hub-Back (Laravel 12 + Filament 4) | `semana-5-huellas-versiones` | [Art-Hub-Back#1](https://github.com/JaimeAntonioRP/Art-Hub-Back/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
-| Art-Hub-Front (Next.js 16) | `semana-5-huellas-versiones` | [Art-Hub-Front#1](https://github.com/JaimeAntonioRP/Art-Hub-Front/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
+| Art-Hub-Back (Laravel 12 + Filament 4) | `semana-6-certificados` | [Art-Hub-Back#1](https://github.com/JaimeAntonioRP/Art-Hub-Back/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
+| Art-Hub-Front (Next.js 16) | `semana-6-certificados` | [Art-Hub-Front#1](https://github.com/JaimeAntonioRP/Art-Hub-Front/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
 
 Las ramas están **apiladas**: cada semana sale de la anterior, así que la última rama ya contiene todo.
 
-- **Back:** `semana-0-limpieza-esquema` → `semana-1-usuarios-artistas` → `semana-2-obras` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones`
-- **Front:** `semana-0-limpieza` → `paleta-colores` → `semana-1-usuarios-artistas` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` (en el front, la semana 5 solo actualiza este archivo)
+- **Back:** `semana-0-limpieza-esquema` → `semana-1-usuarios-artistas` → `semana-2-obras` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` → `semana-6-certificados`
+- **Front:** `semana-0-limpieza` → `paleta-colores` → `semana-1-usuarios-artistas` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` (solo este archivo) → `semana-6-certificados`
 
 Los PR abiertos cubren la Etapa 1. Para la Etapa 2, cuando se fusionen, abrir un PR nuevo desde la última rama.
 
@@ -36,7 +36,7 @@ Los PR abiertos cubren la Etapa 1. Para la Etapa 2, cuando se fusionen, abrir un
 ### Backend (Art-Hub-Back)
 
 Requisitos:
-- PHP 8.2 o superior, con las extensiones `intl`, `pdo_sqlite` o `pdo_pgsql`, `fileinfo`, `gd` y `zip`;
+- PHP 8.2 o superior, con las extensiones `intl`, `pdo_sqlite` o `pdo_pgsql`, `fileinfo`, `gd` (QR y PDF), `dom`, `mbstring` y `zip`;
 - Composer 2.
 
 Filament necesita `intl`. En XAMPP, esa extensión viene desactivada: actívala en `php.ini` o ejecuta PHP con `php -d extension=intl ...`.
@@ -44,7 +44,7 @@ Filament necesita `intl`. En XAMPP, esa extensión viene desactivada: actívala 
 ```bash
 git clone https://github.com/JaimeAntonioRP/Art-Hub-Back.git
 cd Art-Hub-Back
-git checkout semana-5-huellas-versiones
+git checkout semana-6-certificados
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -76,7 +76,7 @@ php artisan serve --port=8001
 ```
 
 - Paneles: `http://127.0.0.1:8001/admin` (administrador) y `http://127.0.0.1:8001/artista` (artista).
-- Tests: `php vendor/bin/phpunit`. Deben salir **74 tests en verde**. `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
+- Tests: `php vendor/bin/phpunit`. Deben salir **84 tests en verde** (tardan unos 20 s por la generación de PDF). `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
 
 ### Frontend (Art-Hub-Front)
 
@@ -85,7 +85,7 @@ Requisito: Node 20 o superior.
 ```bash
 git clone https://github.com/JaimeAntonioRP/Art-Hub-Front.git
 cd Art-Hub-Front
-git checkout semana-5-huellas-versiones
+git checkout semana-6-certificados
 npm install
 echo "NEXT_PUBLIC_API_URL=http://127.0.0.1:8001/api" > .env.local
 npm run dev -- -p 3001
@@ -109,6 +109,8 @@ Notas:
 | 4 · Catálogo y solicitudes | §12 §13 §14 §17 | ✅* | Catálogo con búsqueda, filtros, orden y paginado en el servidor. Ficha con galería, pantalla completa, 3D, ficha técnica y obras relacionadas. Formulario de solicitud con consentimiento, campo trampa y límite por IP, que avisa por correo al admin y al interesado. Bandeja **Solicitudes** en el panel admin. |
 
 | 5 · Huellas y versiones | §21 §23 §24 (+ §22 interno) | ✅ | Cada versión registra su huella con algoritmo, fecha y autor. **Nueva versión** de un documento con motivo obligatorio, sin sobrescribir la anterior. Modal **Versiones** con la huella completa y descarga de cada una. **Comprobar integridad** (solo admin), que recalcula la huella y marca el documento como Íntegro o Alterado. Comando `php artisan arthub:comprobar-integridad`. Huella SHA-256 de las imágenes subidas. Historial con eventos de expediente y de solicitudes, filtrable. |
+
+| 6 · Certificado, QR y verificación | §19 §20 §22 | ✅ | El admin emite, reemite o anula desde la pestaña **Certificados** de la obra. El PDF (dompdf) lleva foto, ficha, documentos relevantes con su huella, la huella de los datos y un QR generado en el servidor. Estados vigente, anulado (con motivo) y reemplazado. Portal `/verificar` por número o QR, y comprobación de un PDF en el navegador. |
 
 \* Con pendientes menores, listados en la sección 4.
 
@@ -158,14 +160,34 @@ Notas:
 
 Los próximos eventos del historial (certificado emitido o anulado, venta, cambio de propietario) se agregan en las semanas 6 y 7.
 
-### Semana 6 · Certificado PDF, QR y verificación (§19 §20 §22)
-- [ ] Generar el PDF del certificado desde una obra aprobada (por ejemplo con `barryvdh/laravel-dompdf`), en la cola de trabajos.
-- [ ] **El QR se genera en el servidor.** Hoy `/verificar/[token]` usa `api.qrserver.com`, que es externo y debe retirarse.
-- [ ] Estados del certificado: vigente, anulado y reemplazado, con reemisión.
-- [ ] Huellas del certificado: el PDF muestra la huella de los **datos** de la obra, y el portal muestra la huella del **PDF** emitido (un PDF no puede contener su propia huella).
-- [ ] Portal público `/verificar` por código o QR, rehecho con el nuevo estilo.
-- [ ] Comprobación de integridad de un archivo: la huella se calcula en el navegador y el archivo no se sube.
-- **Listo cuando:** al escanear el QR se ve la obra y el estado del certificado, y un PDF alterado aparece como «Integridad no verificada».
+### Semana 6 · Certificado PDF, QR y verificación (§19 §20 §22) ✅
+- [x] **PDF del certificado** (`barryvdh/laravel-dompdf`), solo desde una obra aprobada o publicada.
+  - Lleva el número `<código de la obra>-C<n>`, la foto principal, la ficha, los documentos **relevantes** con su huella, la huella de los datos certificados y el QR.
+  - Se guarda en el disco de documentos: `certificados/<obra>/<número>.pdf`.
+  - Se genera **al momento**, no en la cola, porque tarda menos de un segundo. Si algún día se pasa a la cola, hay que tener un worker corriendo.
+- [x] **QR generado en el servidor** (`chillerlan/php-qrcode`). Se retiró `api.qrserver.com`.
+- [x] **Estados:**
+  - **Vigente.**
+  - **Reemplazado:** al reemitir, el anterior remite al nuevo.
+  - **Anulado:** el motivo es obligatorio y se muestra en el portal.
+  - Cada cambio queda en el historial de la obra.
+- [x] **Las dos huellas:**
+  - El PDF lleva impresa la huella de los **datos** (`data_sha256`, sobre un `snapshot` JSON de orden fijo).
+  - El portal publica la huella del **archivo PDF** (`pdf_sha256`).
+- [x] **Aviso «La obra cambió» en el panel** cuando la ficha, la imagen principal o un documento relevante cambiaron después de emitir. Así el admin sabe que conviene reemitir.
+- [x] **Portal `/verificar`:**
+  - Se consulta por número o pegando el enlace del QR. La búsqueda funciona sin JavaScript.
+  - La página de cada certificado muestra el estado, la obra y las huellas.
+  - **El PDF solo se descarga con el token del QR, no con el número.**
+  - El portal no guarda en caché el estado: una anulación se ve al instante.
+- [x] **Comprobar un PDF** en el portal: la huella se calcula en el navegador con `crypto.subtle` y el archivo nunca se sube.
+  - En la página de un certificado, se compara con ese PDF.
+  - En `/verificar`, se busca a qué certificado corresponde (`GET /api/certificates/fingerprint/{sha256}`).
+- [x] **Panel del artista:** ve sus certificados y descarga el PDF; no puede emitir ni anular.
+- **Cumplido:** el QR lleva a la obra y al estado del certificado, y un PDF alterado aparece como «Integridad no verificada». Lo probé en el navegador y lo cubren los tests de `tests/Feature/CertificateTest.php`.
+- **Al desplegar:**
+  - `FRONTEND_URL` debe ser el dominio real, porque es el enlace que queda impreso en el QR. Si cambia el dominio, hay que reemitir.
+  - Los certificados de la versión anterior de la plataforma quedan **anulados** por migración, con su motivo.
 
 ### Semana 7 · Propietarios y ventas (§25 §26)
 - [ ] Registro manual de una reserva, venta o transferencia. Puede partir de una **solicitud confirmada**, que ya existe en el panel.

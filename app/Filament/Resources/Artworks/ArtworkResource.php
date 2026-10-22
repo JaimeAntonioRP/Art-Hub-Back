@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Artworks;
 
+use App\Filament\RelationManagers\ArtworkCertificatesRelationManager;
 use App\Filament\RelationManagers\ArtworkDocumentsRelationManager;
 use App\Filament\RelationManagers\ArtworkHistoryRelationManager;
 use App\Filament\RelationManagers\ArtworkImagesRelationManager;
@@ -53,6 +54,7 @@ class ArtworkResource extends Resource
             ArtworkImagesRelationManager::class,
             ArtworkDocumentsRelationManager::class,
             ReviewNotesRelationManager::class,
+            ArtworkCertificatesRelationManager::class,
             ArtworkHistoryRelationManager::class,
         ];
     }

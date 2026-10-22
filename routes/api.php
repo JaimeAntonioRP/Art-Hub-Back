@@ -3,11 +3,11 @@
 use App\Http\Controllers\Api\ArtistController;
 use App\Http\Controllers\Api\ArtworkController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\CommercialRequestController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\UploadController;
-use App\Http\Controllers\Api\ValidationController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:auth')->group(function () {
@@ -27,7 +27,12 @@ Route::get('/artists/{slug}', [ArtistController::class, 'show']);
 Route::get('/settings', [SettingController::class, 'index']);
 Route::get('/site', [ContentController::class, 'site']);
 Route::get('/pages/{slug}', [ContentController::class, 'page']);
-Route::get('/certificates/{token}', [ValidationController::class, 'showByToken']);
+// La ficha del certificado la pide sobre todo el servidor del sitio (una sola IP): tope amplio.
+Route::get('/certificates/{key}', [CertificateController::class, 'show'])->middleware('throttle:300,1');
+Route::middleware('throttle:verify')->group(function () {
+    Route::get('/certificates/fingerprint/{sha256}', [CertificateController::class, 'byFingerprint']);
+    Route::get('/certificates/{token}/pdf', [CertificateController::class, 'pdf']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);

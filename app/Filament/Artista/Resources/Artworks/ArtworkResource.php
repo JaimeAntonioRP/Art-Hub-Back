@@ -6,6 +6,7 @@ use App\Filament\Artista\Resources\Artworks\Pages\CreateArtwork;
 use App\Filament\Artista\Resources\Artworks\Pages\EditArtwork;
 use App\Filament\Artista\Resources\Artworks\Pages\ListArtworks;
 use App\Filament\Artista\Resources\Artworks\Pages\ViewArtwork;
+use App\Filament\RelationManagers\ArtworkCertificatesRelationManager;
 use App\Filament\RelationManagers\ArtworkDocumentsRelationManager;
 use App\Filament\RelationManagers\ArtworkHistoryRelationManager;
 use App\Filament\RelationManagers\ArtworkImagesRelationManager;
@@ -64,6 +65,7 @@ class ArtworkResource extends Resource
             ArtworkImagesRelationManager::class,
             ArtworkDocumentsRelationManager::class,
             ReviewNotesRelationManager::class,
+            ArtworkCertificatesRelationManager::class,
             ArtworkHistoryRelationManager::class,
         ];
     }

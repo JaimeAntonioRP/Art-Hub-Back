@@ -69,7 +69,7 @@ class ArtworkDocumentsRelationManager extends RelationManager
                 ->required(),
             Toggle::make('is_relevant')
                 ->label('Documento relevante')
-                ->helperText('Se le generará huella y versiones en la certificación.')
+                ->helperText('Se incluye con su huella en el certificado de la obra.')
                 ->inline(false),
             FileUpload::make('file')
                 ->label('Archivo')

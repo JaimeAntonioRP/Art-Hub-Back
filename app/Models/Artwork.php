@@ -215,9 +215,15 @@ class Artwork extends Model
         return $this->hasMany(CommercialRequest::class);
     }
 
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    /** El último certificado emitido (vigente, anulado o reemplazado). */
     public function certificate(): HasOne
     {
-        return $this->hasOne(Certificate::class);
+        return $this->hasOne(Certificate::class)->latestOfMany();
     }
 
     public function scopePublished(Builder $query): Builder
