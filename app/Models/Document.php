@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Support\Disks;
+use App\Support\Fingerprint;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use InvalidArgumentException;
 use RuntimeException;
 
 /** Documento del expediente de una obra (§9). Sus archivos viven en DocumentVersion. */
@@ -54,8 +56,12 @@ class Document extends Model
 
     protected static function booted(): void
     {
-        // Al borrar un documento se borran también sus archivos.
+        // Al borrar un documento se borran también sus archivos, y queda constancia en el historial.
         static::deleting(function (Document $document) {
+            $document->artwork?->recordEvent('documento_eliminado', [
+                'documento' => $document->title,
+                'versiones' => $document->versions->count(),
+            ]);
             $document->versions->each->delete();
         });
     }
@@ -76,32 +82,35 @@ class Document extends Model
     }
 
     /**
-     * Registra un archivo ya guardado en el disco de documentos como nueva versión.
-     * La huella SHA-256 se calcula leyendo el archivo desde el disco, para que
-     * corresponda exactamente a lo almacenado (base de la Etapa 2, §21–§23).
+     * Registra un archivo ya guardado en el disco de documentos como nueva versión (§23).
+     * Las versiones anteriores no se tocan. Desde la segunda, el motivo es obligatorio.
+     * La huella se calcula leyendo el archivo desde el disco, para que corresponda
+     * exactamente a lo almacenado (§21).
      */
     public function addVersion(string $path, string $originalName, ?User $by = null, ?string $reason = null): DocumentVersion
     {
-        $disk = Disks::documents();
-        $stream = $disk->readStream($path);
-        if ($stream === null) {
-            throw new RuntimeException("No se encontró el archivo {$path} en el disco de documentos.");
+        $next = (int) $this->versions()->max('version') + 1;
+        $reason = trim((string) $reason) ?: null;
+
+        if ($next > 1 && $reason === null) {
+            throw new InvalidArgumentException('Una nueva versión necesita un motivo.');
         }
 
-        $hash = hash_init('sha256');
-        hash_update_stream($hash, $stream);
-        fclose($stream);
+        $disk = Disks::documentsName();
+        $sha256 = Fingerprint::ofFile($disk, $path)
+            ?? throw new RuntimeException("No se encontró el archivo {$path} en el disco de documentos.");
 
         return $this->versions()->create([
-            'version'       => (int) $this->versions()->max('version') + 1,
-            'disk'          => Disks::documentsName(),
-            'path'          => $path,
-            'original_name' => $originalName,
-            'mime'          => $disk->mimeType($path) ?: null,
-            'size'          => $disk->size($path),
-            'sha256'        => hash_final($hash),
-            'reason'        => $reason,
-            'uploaded_by'   => $by?->id,
+            'version'        => $next,
+            'disk'           => $disk,
+            'path'           => $path,
+            'original_name'  => $originalName,
+            'mime'           => Disks::documents()->mimeType($path) ?: null,
+            'size'           => Disks::documents()->size($path),
+            'sha256'         => $sha256,
+            'hash_algorithm' => Fingerprint::ALGORITHM,
+            'reason'         => $reason,
+            'uploaded_by'    => $by?->id,
         ]);
     }
 }

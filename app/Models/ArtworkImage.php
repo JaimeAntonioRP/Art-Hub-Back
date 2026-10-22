@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\Disks;
+use App\Support\Fingerprint;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -47,6 +48,11 @@ class ArtworkImage extends Model
         static::saving(function (ArtworkImage $image) {
             if (! $image->exists && ! static::where('artwork_id', $image->artwork_id)->exists()) {
                 $image->is_primary = true; // la primera imagen de la obra es la principal
+            }
+
+            // Huella de la imagen subida (§21): la usa el certificado para identificar la obra.
+            if ($image->isDirty('path')) {
+                $image->sha256 = $image->isStoredFile() ? Fingerprint::ofFile(Disks::mediaName(), $image->path) : null;
             }
 
             if ($image->is_primary) {

@@ -3,6 +3,7 @@
 namespace App\Filament\RelationManagers;
 
 use App\Models\Document;
+use App\Models\DocumentVersion;
 use App\Support\Disks;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -14,6 +15,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +23,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Number;
 
@@ -89,7 +92,7 @@ class ArtworkDocumentsRelationManager extends RelationManager
     {
         return $table
             ->defaultSort('created_at', 'desc')
-            ->modifyQueryUsing(fn ($query) => $query->with('latestVersion'))
+            ->modifyQueryUsing(fn ($query) => $query->with('latestVersion')->withCount('versions'))
             ->columns([
                 TextColumn::make('title')
                     ->label('Documento')
@@ -108,6 +111,26 @@ class ArtworkDocumentsRelationManager extends RelationManager
                 IconColumn::make('is_relevant')
                     ->label('Relevante')
                     ->boolean(),
+                TextColumn::make('versions_count')
+                    ->label('Versión')
+                    ->formatStateUsing(fn (int $state) => "v{$state}")
+                    ->alignCenter(),
+                TextColumn::make('integrity')
+                    ->label('Integridad')
+                    ->badge()
+                    ->getStateUsing(fn (Document $record) => match ($record->latestVersion?->verification_ok) {
+                        true => 'Íntegro',
+                        false => 'Alterado',
+                        default => 'Sin comprobar',
+                    })
+                    ->color(fn (string $state) => match ($state) {
+                        'Íntegro' => 'success',
+                        'Alterado' => 'danger',
+                        default => 'gray',
+                    })
+                    ->tooltip(fn (Document $record) => $record->latestVersion?->verified_at
+                        ? 'Comprobado el '.$record->latestVersion->verified_at->format('d/m/Y H:i')
+                        : null),
                 TextColumn::make('latestVersion.size')
                     ->label('Tamaño')
                     ->formatStateUsing(fn ($state) => $state ? Number::fileSize($state, precision: 1) : '—'),
@@ -130,6 +153,18 @@ class ArtworkDocumentsRelationManager extends RelationManager
                     ->options(Document::CATEGORY_LABELS),
             ])
             ->headerActions([
+                Action::make('verifyAll')
+                    ->label('Comprobar integridad')
+                    ->icon(Heroicon::OutlinedShieldCheck)
+                    ->color('gray')
+                    ->visible(fn () => auth()->user()?->isAdmin())
+                    ->requiresConfirmation()
+                    ->modalHeading('Comprobar la integridad del expediente')
+                    ->modalDescription('Se vuelve a calcular la huella de cada versión guardada y se compara con la registrada al subirla.')
+                    ->modalSubmitActionLabel('Comprobar')
+                    ->action(fn () => self::notifyIntegrity(
+                        DocumentVersion::whereIn('document_id', $this->getOwnerRecord()->documents()->select('id'))->get(),
+                    )),
                 CreateAction::make()
                     ->label('Agregar documento')
                     ->using(function (array $data): Document {
@@ -152,10 +187,81 @@ class ArtworkDocumentsRelationManager extends RelationManager
                         ? route('documents.download', $record->latestVersion)
                         : null)
                     ->openUrlInNewTab(),
+                Action::make('newVersion')
+                    ->label('Nueva versión')
+                    ->icon(Heroicon::OutlinedArrowUpTray)
+                    ->visible(fn () => ! $this->isReadOnly())
+                    ->modalHeading(fn (Document $record) => "Nueva versión de «{$record->title}»")
+                    ->modalDescription('La versión anterior se conserva con su huella. El cambio queda en el historial de la obra.')
+                    ->modalSubmitActionLabel('Guardar versión')
+                    ->schema([
+                        FileUpload::make('file')
+                            ->label('Archivo')
+                            ->disk(Disks::documentsName())
+                            ->visibility('private')
+                            ->directory(fn () => 'expedientes/'.$this->getOwnerRecord()->getKey())
+                            ->acceptedFileTypes(Document::ACCEPTED_MIME_TYPES)
+                            ->maxSize(Document::MAX_KB)
+                            ->storeFileNamesIn('original_name')
+                            ->required(),
+                        Hidden::make('original_name'),
+                        Textarea::make('reason')
+                            ->label('Motivo del cambio')
+                            ->placeholder('Por ejemplo: se corrigió la fecha del certificado de procedencia.')
+                            ->required()
+                            ->maxLength(1000)
+                            ->rows(3),
+                    ])
+                    ->action(function (Document $record, array $data) {
+                        $record->addVersion($data['file'], $data['original_name'] ?? basename($data['file']), auth()->user(), $data['reason']);
+                        Notification::make()->success()->title('Nueva versión guardada')->send();
+                    }),
+                Action::make('versions')
+                    ->label('Versiones')
+                    ->icon(Heroicon::OutlinedClock)
+                    ->color('gray')
+                    ->modalHeading(fn (Document $record) => "Versiones de «{$record->title}»")
+                    ->modalContent(fn (Document $record) => view('filament.document-versions', [
+                        'versions' => $record->versions()->with('uploader')->get()->sortByDesc('version'),
+                    ]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Cerrar')
+                    ->extraModalFooterActions(fn (Document $record) => auth()->user()?->isAdmin() ? [
+                        Action::make('verifyVersions')
+                            ->label('Comprobar integridad')
+                            ->icon(Heroicon::OutlinedShieldCheck)
+                            ->action(fn () => self::notifyIntegrity($record->versions)),
+                    ] : []),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
             ->emptyStateHeading('Expediente vacío')
             ->emptyStateDescription('Agrega declaraciones, certificados existentes, documentos de procedencia, informes o peritajes.');
+    }
+
+    /** Comprueba las versiones dadas y avisa del resultado (§22). */
+    private static function notifyIntegrity(Collection $versions): void
+    {
+        if ($versions->isEmpty()) {
+            Notification::make()->title('No hay archivos que comprobar')->send();
+
+            return;
+        }
+
+        $failed = $versions->reject(fn (DocumentVersion $v) => $v->verifyIntegrity());
+
+        if ($failed->isEmpty()) {
+            Notification::make()->success()
+                ->title('Integridad verificada')
+                ->body($versions->count() === 1 ? 'El archivo coincide con su huella.' : "Los {$versions->count()} archivos coinciden con su huella.")
+                ->send();
+
+            return;
+        }
+
+        Notification::make()->danger()->persistent()
+            ->title('Integridad no verificada')
+            ->body($failed->map(fn (DocumentVersion $v) => "«{$v->document->title}» v{$v->version}")->implode(', ').' no coincide con su huella. Quedó registrado en el historial.')
+            ->send();
     }
 }

@@ -1,7 +1,7 @@
 # ArtHub · Cronograma y estado del proyecto
 
 > Este archivo es igual en **Art-Hub-Back** y **Art-Hub-Front**. Sirve para retomar el trabajo en otra máquina.
-> Última actualización: 20 de octubre de 2026.
+> Última actualización: 22 de octubre de 2026 (semana 5 terminada).
 
 Las bases son la propuesta *ArtHub_2_Etapas.docx* (dos etapas de S/ 6,000 cada una) y la hoja de ruta acordada:
 
@@ -17,13 +17,15 @@ Quedan fuera del alcance: pagos en línea, blockchain, NFT, IA, fraccionamiento 
 
 | Repo | Rama de trabajo (la última) | PR abierto |
 |---|---|---|
-| Art-Hub-Back (Laravel 12 + Filament 4) | `semana-4-catalogo-solicitudes` | [Art-Hub-Back#1](https://github.com/JaimeAntonioRP/Art-Hub-Back/pull/1) → `main` |
-| Art-Hub-Front (Next.js 16) | `semana-4-catalogo-solicitudes` | [Art-Hub-Front#1](https://github.com/JaimeAntonioRP/Art-Hub-Front/pull/1) → `main` |
+| Art-Hub-Back (Laravel 12 + Filament 4) | `semana-5-huellas-versiones` | [Art-Hub-Back#1](https://github.com/JaimeAntonioRP/Art-Hub-Back/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
+| Art-Hub-Front (Next.js 16) | `semana-5-huellas-versiones` | [Art-Hub-Front#1](https://github.com/JaimeAntonioRP/Art-Hub-Front/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
 
-Las ramas están **apiladas**: cada semana sale de la anterior, así que `semana-4-catalogo-solicitudes` ya contiene todo.
+Las ramas están **apiladas**: cada semana sale de la anterior, así que la última rama ya contiene todo.
 
-- **Back:** `semana-0-limpieza-esquema` → `semana-1-usuarios-artistas` → `semana-2-obras` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes`
-- **Front:** `semana-0-limpieza` → `paleta-colores` → `semana-1-usuarios-artistas` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes`
+- **Back:** `semana-0-limpieza-esquema` → `semana-1-usuarios-artistas` → `semana-2-obras` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones`
+- **Front:** `semana-0-limpieza` → `paleta-colores` → `semana-1-usuarios-artistas` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` (en el front, la semana 5 solo actualiza este archivo)
+
+Los PR abiertos cubren la Etapa 1. Para la Etapa 2, cuando se fusionen, abrir un PR nuevo desde la última rama.
 
 **Convención:** cada semana nueva va en una rama nueva que sale de la anterior (por ejemplo `semana-5-huellas-versiones`). Estos archivos **no se suben nunca**: `render.yaml`, `start.sh`, `.claude/settings.local.json` y `next-env.d.ts`.
 
@@ -42,7 +44,7 @@ Filament necesita `intl`. En XAMPP, esa extensión viene desactivada: actívala 
 ```bash
 git clone https://github.com/JaimeAntonioRP/Art-Hub-Back.git
 cd Art-Hub-Back
-git checkout semana-4-catalogo-solicitudes
+git checkout semana-5-huellas-versiones
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -74,7 +76,7 @@ php artisan serve --port=8001
 ```
 
 - Paneles: `http://127.0.0.1:8001/admin` (administrador) y `http://127.0.0.1:8001/artista` (artista).
-- Tests: `php vendor/bin/phpunit`. Deben salir **65 tests en verde**. `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
+- Tests: `php vendor/bin/phpunit`. Deben salir **74 tests en verde**. `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
 
 ### Frontend (Art-Hub-Front)
 
@@ -83,7 +85,7 @@ Requisito: Node 20 o superior.
 ```bash
 git clone https://github.com/JaimeAntonioRP/Art-Hub-Front.git
 cd Art-Hub-Front
-git checkout semana-4-catalogo-solicitudes
+git checkout semana-5-huellas-versiones
 npm install
 echo "NEXT_PUBLIC_API_URL=http://127.0.0.1:8001/api" > .env.local
 npm run dev -- -p 3001
@@ -105,6 +107,8 @@ Notas:
 | 3 · Revisión y paneles | §10 §11 §15 §16 | ✅ | Estados borrador → en revisión → observado/aprobado/rechazado → publicado/despublicado. Notas de revisión e historial automático. Escritorios con indicadores para admin y artista. Contenido del sitio editable (CMS por bloques). |
 | Home de venta | §12 | ✅ | Hero grande editable, galería limpia y botón destacado en el header. Sin datos del usuario en el header. |
 | 4 · Catálogo y solicitudes | §12 §13 §14 §17 | ✅* | Catálogo con búsqueda, filtros, orden y paginado en el servidor. Ficha con galería, pantalla completa, 3D, ficha técnica y obras relacionadas. Formulario de solicitud con consentimiento, campo trampa y límite por IP, que avisa por correo al admin y al interesado. Bandeja **Solicitudes** en el panel admin. |
+
+| 5 · Huellas y versiones | §21 §23 §24 (+ §22 interno) | ✅ | Cada versión registra su huella con algoritmo, fecha y autor. **Nueva versión** de un documento con motivo obligatorio, sin sobrescribir la anterior. Modal **Versiones** con la huella completa y descarga de cada una. **Comprobar integridad** (solo admin), que recalcula la huella y marca el documento como Íntegro o Alterado. Comando `php artisan arthub:comprobar-integridad`. Huella SHA-256 de las imágenes subidas. Historial con eventos de expediente y de solicitudes, filtrable. |
 
 \* Con pendientes menores, listados en la sección 4.
 
@@ -141,12 +145,18 @@ Notas:
 
 ## 5. Etapa 2 · Certificación y experiencia digital (semanas 5–8)
 
-### Semana 5 · Huellas, versiones e historial avanzado (§21 §23 §24)
-- [ ] El primer día, una **prueba rápida de AR** en los dispositivos acordados, para descubrir pronto los problemas.
-- [ ] Registro de huellas por versión: algoritmo, fecha y autor. El SHA-256 ya se guarda desde la semana 2.
-- [ ] Subir una nueva versión de un documento sin sobrescribir la anterior, con motivo obligatorio. La tabla `document_versions` ya existe.
-- [ ] Nuevos tipos de evento en el historial: documento versionado, certificado emitido, venta, etc.
-- **Listo cuando:** un documento tiene 3 versiones consultables, cada una con su huella.
+### Semana 5 · Huellas, versiones e historial avanzado (§21 §23 §24) ✅
+- [ ] **Prueba rápida de AR** en los dispositivos acordados. **Sigue pendiente:** necesita un Android y un iPhone reales. Abrir en el celular la ficha de una obra con modelo 3D (por ejemplo `/obras/1`) y tocar «3D / AR».
+- [x] Registro de huellas por versión: algoritmo (`hash_algorithm`), fecha y autor (`uploaded_by`).
+- [x] Nueva versión de un documento sin sobrescribir la anterior, con motivo obligatorio. El modelo también rechaza versiones sin motivo.
+- [x] Modal «Versiones» con todas las versiones, su huella completa, el motivo y la descarga.
+- [x] Comprobación de integridad (adelanto interno del §22): en el panel, solo para el admin, y por consola con `arthub:comprobar-integridad [--obra=ID]`, que devuelve un código de error si algo falla. Cada fallo queda en el historial.
+- [x] Huella SHA-256 de las imágenes subidas (`artwork_images.sha256`), para el certificado de la semana 6.
+- [x] Historial con nuevos eventos: documento agregado, versionado o eliminado; integridad no verificada; solicitud recibida o actualizada (sin datos personales). Tiene un filtro por grupo: ficha, expediente o solicitudes.
+- **Al desplegar:** programar `php artisan arthub:comprobar-integridad` a diario (cron o scheduler de Render/Railway).
+- **Cumplido:** un documento tiene varias versiones consultables, cada una con su huella. Lo cubren los tests de `tests/Feature/FingerprintTest.php`.
+
+Los próximos eventos del historial (certificado emitido o anulado, venta, cambio de propietario) se agregan en las semanas 6 y 7.
 
 ### Semana 6 · Certificado PDF, QR y verificación (§19 §20 §22)
 - [ ] Generar el PDF del certificado desde una obra aprobada (por ejemplo con `barryvdh/laravel-dompdf`), en la cola de trabajos.

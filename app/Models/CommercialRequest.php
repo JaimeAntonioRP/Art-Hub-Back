@@ -34,6 +34,22 @@ class CommercialRequest extends Model
         'type' => 'informacion',
     ];
 
+    protected static function booted(): void
+    {
+        // En el historial de la obra solo queda el tipo y el estado: nunca los datos del interesado (§24).
+        static::created(fn (CommercialRequest $r) => $r->artwork?->recordEvent('solicitud_recibida', ['tipo' => $r->type]));
+
+        static::updated(function (CommercialRequest $r) {
+            if ($r->wasChanged('status')) {
+                $r->artwork?->recordEvent('solicitud_actualizada', [
+                    'tipo' => $r->type,
+                    'de'   => $r->getOriginal('status'),
+                    'a'    => $r->status,
+                ]);
+            }
+        });
+    }
+
     public function artwork(): BelongsTo
     {
         return $this->belongsTo(Artwork::class);

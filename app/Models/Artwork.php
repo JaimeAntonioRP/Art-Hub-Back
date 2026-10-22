@@ -296,10 +296,11 @@ class Artwork extends Model
         }
     }
 
-    public function recordEvent(string $type, ?array $payload = null): void
+    /** Agrega un evento al historial. Por defecto el autor es quien tiene la sesión abierta. */
+    public function recordEvent(string $type, ?array $payload = null, ?int $actorId = null): void
     {
         $this->history()->create([
-            'actor_id' => auth()->id(),
+            'actor_id' => $actorId ?? auth()->id(),
             'type'     => $type,
             'payload'  => $payload,
         ]);
