@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ArController;
 use App\Http\Controllers\Api\ArtistController;
 use App\Http\Controllers\Api\ArtworkController;
 use App\Http\Controllers\Api\AuthController;
@@ -19,6 +20,9 @@ Route::middleware('throttle:auth')->group(function () {
 
 Route::get('/artworks', [ArtworkController::class, 'index']);
 Route::get('/artworks/{id}', [ArtworkController::class, 'show']);
+// Realidad aumentada (§27): modelo a escala generado desde la foto, y QR para abrirlo en el celular.
+Route::get('/artworks/{id}/ar.glb', [ArController::class, 'model'])->middleware('throttle:60,1');
+Route::get('/artworks/{id}/ar-qr.png', [ArController::class, 'qr'])->middleware('throttle:60,1');
 Route::post('/artworks/{id}/requests', [CommercialRequestController::class, 'store'])->middleware('throttle:requests');
 
 Route::get('/artists', [ArtistController::class, 'index']);

@@ -1,7 +1,7 @@
 # ArtHub · Cronograma y estado del proyecto
 
 > Este archivo es igual en **Art-Hub-Back** y **Art-Hub-Front**. Sirve para retomar el trabajo en otra máquina.
-> Última actualización: 22 de octubre de 2026 (semana 7 terminada).
+> Última actualización: 23 de octubre de 2026. **Las 8 semanas están programadas.** Lo que falta es despliegue, pruebas con el cliente y en celulares reales, y contenido (sección 4).
 
 Las bases son la propuesta *ArtHub_2_Etapas.docx* (dos etapas de S/ 6,000 cada una) y la hoja de ruta acordada:
 
@@ -17,13 +17,13 @@ Quedan fuera del alcance: pagos en línea, blockchain, NFT, IA, fraccionamiento 
 
 | Repo | Rama de trabajo (la última) | PR abierto |
 |---|---|---|
-| Art-Hub-Back (Laravel 12 + Filament 4) | `semana-7-propietarios-ventas` | [Art-Hub-Back#1](https://github.com/JaimeAntonioRP/Art-Hub-Back/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
-| Art-Hub-Front (Next.js 16) | `semana-7-propietarios-ventas` | [Art-Hub-Front#1](https://github.com/JaimeAntonioRP/Art-Hub-Front/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
+| Art-Hub-Back (Laravel 12 + Filament 4) | `semana-8-realidad-aumentada` | [Art-Hub-Back#1](https://github.com/JaimeAntonioRP/Art-Hub-Back/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
+| Art-Hub-Front (Next.js 16) | `semana-8-realidad-aumentada` | [Art-Hub-Front#1](https://github.com/JaimeAntonioRP/Art-Hub-Front/pull/1) (Etapa 1, desde `semana-4-catalogo-solicitudes`) → `main` |
 
 Las ramas están **apiladas**: cada semana sale de la anterior, así que la última rama ya contiene todo.
 
-- **Back:** `semana-0-limpieza-esquema` → `semana-1-usuarios-artistas` → `semana-2-obras` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` → `semana-6-certificados` → `login-unico` → `semana-7-propietarios-ventas` (solo este archivo) → `semana-7-propietarios-ventas`
-- **Front:** `semana-0-limpieza` → `paleta-colores` → `semana-1-usuarios-artistas` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` (solo este archivo) → `semana-6-certificados` → `login-unico`
+- **Back:** `semana-0-limpieza-esquema` → `semana-1-usuarios-artistas` → `semana-2-obras` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` → `semana-6-certificados` → `login-unico` → `semana-7-propietarios-ventas` → `semana-8-realidad-aumentada`
+- **Front:** `semana-0-limpieza` → `paleta-colores` → `semana-1-usuarios-artistas` → `semana-3-contenido-revision` → `home-limpio` → `semana-4-catalogo-solicitudes` → `semana-5-huellas-versiones` (solo este archivo) → `semana-6-certificados` → `login-unico` → `semana-7-propietarios-ventas` (solo este archivo) → `semana-8-realidad-aumentada`
 
 Los PR abiertos cubren la Etapa 1. Para la Etapa 2, cuando se fusionen, abrir un PR nuevo desde la última rama.
 
@@ -44,7 +44,7 @@ Filament necesita `intl`. En XAMPP, esa extensión viene desactivada: actívala 
 ```bash
 git clone https://github.com/JaimeAntonioRP/Art-Hub-Back.git
 cd Art-Hub-Back
-git checkout semana-7-propietarios-ventas
+git checkout semana-8-realidad-aumentada
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -85,7 +85,7 @@ php artisan serve --port=8001
   | `comprador@arthub.test` | Comprador | sitio público |
 
   En producción no se crean nunca. Ahí el administrador inicial es `ADMIN_EMAIL` con `ADMIN_PASSWORD`.
-- Tests: `php vendor/bin/phpunit`. Deben salir **98 tests en verde** (tardan unos 20 s por la generación de PDF). `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
+- Tests: `php vendor/bin/phpunit`. Deben salir **104 tests en verde** (tardan unos 20 s por la generación de PDF). `phpunit.xml` fuerza SQLite en memoria, así que nunca toca tu base de datos.
 
 ### Frontend (Art-Hub-Front)
 
@@ -94,7 +94,7 @@ Requisito: Node 20 o superior.
 ```bash
 git clone https://github.com/JaimeAntonioRP/Art-Hub-Front.git
 cd Art-Hub-Front
-git checkout semana-7-propietarios-ventas
+git checkout semana-8-realidad-aumentada
 npm install
 echo "NEXT_PUBLIC_API_URL=http://127.0.0.1:8001/api" > .env.local
 npm run dev -- -p 3001
@@ -125,11 +125,13 @@ Notas:
 
 | 7 · Propietarios y ventas | §25 §26 | ✅ | Pestañas **Ventas** y **Propietarios** en la obra (solo el admin). Registro de reserva, venta o transferencia, también desde una solicitud. La disponibilidad y el propietario actual se actualizan solos. Un registro equivocado se anula con motivo y se deshacen sus efectos. Listado general en **Ventas**. |
 
+| 8 · Realidad aumentada | §27 | ✅* | Botón **«Ver en mi pared»** en la ficha. El modelo 3D (GLB) se genera en el servidor desde la foto principal y las medidas, a tamaño real y sin deformar la foto. En el celular abre la cámara; en la computadora muestra el modelo y un QR para seguir en el teléfono. Falta la prueba en celulares reales. |
+
 \* Con pendientes menores, listados en la sección 4.
 
 ---
 
-## 4. Lo que falta para cerrar la Etapa 1
+## 4. Lo que falta para cerrar el proyecto
 
 ### Pendientes técnicos
 
@@ -138,10 +140,11 @@ Notas:
 - [ ] **Staging y respaldos:** un ambiente de pruebas y copias de seguridad automáticas de PostgreSQL.
 - [ ] **Miniaturas automáticas de imágenes** (§8, semana 2). Hoy se sirve la imagen original. Generar versiones de unos 400 px y 1600 px al subir.
 - [ ] **Página `/artistas` y `/artistas/[slug]` con el nuevo estilo.** Todavía tienen el diseño anterior (estilos en línea). Ponerlas en el lenguaje de la portada y del catálogo, y en la ficha del artista enlazar a `/obras?artist=slug`.
-- [ ] **Páginas de cuenta** (`/login`, `/registro`, `/recuperar`, `/restablecer`): aplicarles el mismo estilo limpio.
+- [ ] **Páginas de cuenta** (`/registro`, `/recuperar`, `/restablecer`): aplicarles el mismo estilo limpio. El login ya tiene el estilo nuevo (`/ingresar` en el backend).
 - [ ] **QA responsive final (§17)** en todas las páginas: escritorio, tablet y móvil (375 px), con contraste AA. Catálogo, ficha y portada ya están revisados.
 - [ ] **Manual básico de uso** (admin y artista) y **documentación técnica** de despliegue (semana 4 del plan).
-- [ ] Desplegar y probar con el cliente. **Firmar la aceptación de la Etapa 1.**
+- [ ] **Probar «Ver en mi pared» en celulares reales**: un Android con Chrome y ARCore, y un iPhone con iOS 16 o superior en Safari. Necesita el sitio publicado con **https**, porque la cámara en modo AR no funciona en `localhost` desde el teléfono.
+- [ ] Desplegar y probar con el cliente. **Firmar la aceptación de la Etapa 1** y, después, la de la **Etapa 2**.
 
 - [ ] **Decidir qué hace el comprador con su cuenta.** Hoy entra y vuelve al catálogo sin nada propio. Propuesta: una página «Mis solicitudes» y que el formulario de solicitud se rellene solo con sus datos.
 
@@ -150,13 +153,26 @@ Notas:
 - [ ] Subir las imágenes de portada en buena resolución (1920 px o más).
 - [ ] Revisar en el CMS la bio del CTO, que todavía menciona blockchain.
 - [ ] Revisar los textos del formulario de solicitud, que prometen el contacto de un asesor.
+- [ ] **Corregir las medidas de las obras de ejemplo.** En 12 de las 19 obras las medidas no coinciden con la foto: casi siempre están escritas como «lado corto × lado largo» aunque la obra sea vertical. El modelo de AR no se deforma, porque usa la proporción de la foto y el lado más largo registrado, pero la ficha y el certificado muestran las medidas tal como están cargadas.
+- [ ] Que el cliente apruebe la redacción del certificado PDF («no constituye un peritaje de autenticidad»).
 
-### Antes de fusionar los PR y desplegar
+### Antes de fusionar en `main` y desplegar
+
+**Atención: publicar en `main` despliega en producción.**
+- **Vercel** publica el front.
+- **El backend** (`Dockerfile` / `nixpacks.toml`) ejecuta `php artisan migrate --force` y `php artisan db:seed --force` al arrancar, **sobre la base real**.
+
+Los PR abiertos (Art-Hub-Back#1 y Art-Hub-Front#1) solo cubren la Etapa 1. Para publicar todo, hay que fusionar la última rama (`semana-8-realidad-aumentada`) en `main`; el avance es directo (*fast-forward*).
 
 1. Respaldar la base de datos de producción.
-2. Fusionar los dos PR **juntos**: el front usa las respuestas nuevas de la API.
-3. Ejecutar `php artisan migrate --force` y `php artisan db:seed --force`. El seeder no borra datos.
-4. Definir `ADMIN_PASSWORD`, `MAIL_*`, `FRONTEND_URL` y, en el front, `NEXT_PUBLIC_API_URL`.
+2. Definir en el servidor:
+   - `APP_ENV=production` y `ADMIN_PASSWORD`;
+   - `MAIL_*`;
+   - `FRONTEND_URL` con el dominio real del sitio (va impreso en el QR de los certificados);
+   - en el front, `NEXT_PUBLIC_API_URL`.
+3. Conectar R2 (o asumir que se pierden los archivos subidos en cada despliegue).
+4. Publicar back y front **juntos**: el front usa las respuestas nuevas de la API.
+5. Programar `php artisan arthub:comprobar-integridad` a diario.
 
 ---
 
@@ -220,11 +236,27 @@ Los próximos eventos del historial (certificado emitido o anulado, venta, cambi
 - **Cumplido:** registrar una venta pone la obra en «Vendida», crea el nuevo propietario y deja el evento en el historial. Lo probé en el panel y lo cubren los tests de `tests/Feature/SaleTest.php`.
 - **Pendiente con el cliente:** ¿los propietarios deben verse en el portal de verificación? Hoy **no** se muestran, porque son datos personales.
 
-### Semana 8 · Realidad aumentada y cierre (§27)
-- [ ] Generar un plano GLB desde la imagen principal y las medidas reales. Las obras 2D no necesitan modelado.
-- [ ] Botón «Ver en mi pared» en la ficha. El visor model-viewer 3.5.0 ya está integrado. Debe tener una alternativa para dispositivos no compatibles.
-- [ ] Pruebas en los dispositivos acordados y entrega final. **Aceptación de la Etapa 2.**
-- **Listo cuando:** en los dispositivos acordados la obra aparece en la pared a escala aproximada.
+### Semana 8 · Realidad aumentada y cierre (§27) ✅ (falta la prueba en celulares)
+- [x] **Modelo GLB generado en el servidor** (`app/Support/ArPlane.php`): un cuadro con la foto principal al frente y un canto oscuro, a tamaño real. Las obras 2D no necesitan modelado.
+  - **La proporción la manda la foto**, así nunca se deforma; de las medidas se toma el lado más largo.
+  - La profundidad es la registrada, o 2,5 cm si no hay.
+  - La foto se reduce a 2048 px como máximo. Un modelo pesa unos 300 KB.
+  - Se guarda en caché en el disco de imágenes (`ar/<obra>-<clave>.glb`) y se regenera solo si cambian la foto o las medidas.
+  - Pasa el **validador oficial de glTF (Khronos)** sin errores ni advertencias.
+- [x] **API:**
+  - `GET /api/artworks/{id}/ar.glb` sirve el modelo, con CORS y caché.
+  - `GET /api/artworks/{id}/ar-qr.png` da un QR que abre la ficha en el celular (`/obras/{id}?ar=1`).
+  - La ficha trae `ar_model_url`, versionada para que nunca quede un modelo viejo en caché, y `ar_qr_url`.
+  - Solo obras publicadas, con foto principal y medidas.
+- [x] **Botón «Ver en mi pared»** en la ficha (`components/catalog/WallView.tsx`):
+  - Usa model-viewer 3.5.0 en modo `ar-placement="wall"` y `ar-scale="fixed"`, que fija el tamaño real y no deja agrandarlo.
+  - Funciona con WebXR (Android), Scene Viewer (Android) y Quick Look (iPhone); para iPhone, model-viewer arma el USDZ solo.
+  - **En un celular compatible:** el botón «Abrir la cámara».
+  - **En la computadora:** el modelo para girarlo y un QR para seguir en el teléfono.
+  - **En un celular sin AR:** explica qué navegadores sirven.
+  - Al llegar desde el QR (`?ar=1`), el panel se abre solo.
+- [ ] **Pruebas en los dispositivos acordados** (ver sección 4) y **aceptación de la Etapa 2**.
+- **Listo cuando:** en los dispositivos acordados la obra aparece en la pared a escala aproximada. Lo cubren los tests de `tests/Feature/ArTest.php`; falta la prueba física.
 
 ---
 

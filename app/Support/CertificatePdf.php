@@ -6,10 +6,6 @@ use App\Models\Artwork;
 use App\Models\Certificate;
 use App\Models\Document;
 use Barryvdh\DomPDF\Facade\Pdf;
-use chillerlan\QRCode\Common\EccLevel;
-use chillerlan\QRCode\Output\QROutputInterface;
-use chillerlan\QRCode\QRCode;
-use chillerlan\QRCode\QROptions;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 
@@ -25,23 +21,11 @@ class CertificatePdf
             'documents'     => $certificate->snapshot['documentos'],
             'categoryLabels'=> Document::CATEGORY_LABELS,
             'image'         => self::primaryImage($artwork),
-            'qr'            => self::qr($certificate->verificationUrl()),
+            'qr'            => Qr::dataUri($certificate->verificationUrl()),
             'verifyUrl'     => $certificate->verificationUrl(),
         ])->setPaper('a4')
             ->setOption(['isFontSubsettingEnabled' => true, 'isRemoteEnabled' => false])
             ->output();
-    }
-
-    /** QR como imagen PNG embebida (data URI). */
-    public static function qr(string $url): string
-    {
-        return (new QRCode(new QROptions([
-            'outputType'    => QROutputInterface::GDIMAGE_PNG,
-            'outputBase64'  => true,
-            'eccLevel'      => EccLevel::M,
-            'scale'         => 6,
-            'quietzoneSize' => 2,
-        ])))->render($url);
     }
 
     /**

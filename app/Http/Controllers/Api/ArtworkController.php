@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreArtworkRequest;
 use App\Models\Artist;
 use App\Models\Artwork;
+use App\Support\ArPlane;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -100,6 +101,13 @@ class ArtworkController extends Controller
                 'has_page' => $artwork->artist->status === Artist::STATUS_APROBADO,
             ] : null,
             'certificate' => $artwork->certificate?->only(['verification_token', 'status']),
+            // «Ver en mi pared» (§27): solo si hay foto principal y medidas, y la obra está publicada.
+            'ar_model_url' => $artwork->status === Artwork::STATUS_PUBLICADO && ArPlane::supports($artwork)
+                ? url("/api/artworks/{$artwork->id}/ar.glb?v=".ArPlane::cacheKey($artwork)) // la versión evita un modelo viejo en caché
+                : null,
+            'ar_qr_url' => $artwork->status === Artwork::STATUS_PUBLICADO
+                ? url("/api/artworks/{$artwork->id}/ar-qr.png")
+                : null,
             'related' => $related,
         ]);
     }
