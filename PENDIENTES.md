@@ -27,23 +27,62 @@
 
 ## 1. Producción en el VPS de Hostinger
 
-**En línea desde el 24/10/2026: https://arthub.com.pe** (sitio) y **https://api.arthub.com.pe** (API, paneles y `/ingresar`).
+**En línea desde el 24/10/2026:**
+- **https://arthub.com.pe**: el sitio.
+- **https://api.arthub.com.pe**: la API, los paneles y el login (`/ingresar`).
+
+Datos del servidor:
 - VPS `2.24.212.131`: Ubuntu 26.04, PHP 8.5, PostgreSQL 18, Node 22 y PM2.
-- El código está en `/var/www/arthub-back` y `/var/www/arthub-front`, rama `main`. Para actualizar: `./deploy/deploy.sh` en cada carpeta, como `deploy`.
-- Los pasos están en [`DESPLIEGUE.md`](DESPLIEGUE.md).
+- El código está en `/var/www/arthub-back` y `/var/www/arthub-front`, rama `main`, usuario `deploy`.
+- La instalación completa está explicada en [`DESPLIEGUE.md`](DESPLIEGUE.md).
+
+### Hecho
 
 - [x] DNS en GoDaddy: `@`, `www` y `api` apuntan al VPS.
 - [x] Servidor preparado, con cortafuegos (solo SSH y web).
 - [x] Base nueva con el seeder: solo la colección de Augusto (1 artista y 19 obras).
-- [x] Backend en `api.arthub.com.pe` y sitio en `arthub.com.pe` (PM2 arranca solo al reiniciar el servidor).
-- [x] https con Let's Encrypt en los tres nombres, con renovación automática (vence el 22/01/2027 si no se renovara).
+- [x] Backend en `api.arthub.com.pe` y sitio en `arthub.com.pe`. PM2 arranca solo al reiniciar el servidor.
+- [x] https con Let's Encrypt en los tres nombres, con renovación automática.
 - [x] Cron de Laravel instalado; la comprobación de integridad corre a diario a las 03:00.
-- [x] Administrador creado (`jrodriguezphillco@gmail.com`). La contraseña se quitó del `.env`. **Conviene cambiarla por una de 12 caracteres o más** desde el panel.
-- [ ] **Correo real.** Hoy `MAIL_MAILER=log`: los avisos van al log del servidor. Para la cuenta de GoDaddy, en `/var/www/arthub-back/.env`: `MAIL_MAILER=smtp`, `MAIL_HOST=smtpout.secureserver.net`, `MAIL_PORT=465`, `MAIL_SCHEME=smtps` y `MAIL_USERNAME`, `MAIL_PASSWORD` y `MAIL_FROM_ADDRESS` con esa cuenta. Después: `php artisan optimize`.
-- [ ] **Respaldos diarios** de la base y de `storage/app` (DESPLIEGUE.md, «Respaldos»), más los snapshots del VPS en hPanel.
-- [ ] **Apagar lo anterior:** el proyecto de Vercel (o quitarle el despliegue automático) y el backend de Railway/Render.
-- [ ] **Quitar el acceso SSH de Claude** cuando ya no haga falta: borrar la línea `claude-arthub-20261024` de `/root/.ssh/authorized_keys`.
-- [ ] R2 no es urgente: en el VPS los archivos no se borran al actualizar. Sirve como respaldo fuera del servidor.
+- [x] Administrador creado (`jrodriguezphillco@gmail.com`). Su contraseña se quitó del `.env`.
+- [x] `despliegue-vps` fusionado en `main`. El servidor actualiza con `./deploy/deploy.sh`.
+
+### Pendiente en el servidor
+
+- [ ] **Activar el correo real.** Hoy `MAIL_MAILER=log`: los avisos de solicitudes, revisión y recuperación de contraseña quedan en el log y no se envían. Con la cuenta de correo de GoDaddy:
+  1. Edita `/var/www/arthub-back/.env` con estos valores:
+     ```
+     MAIL_MAILER=smtp
+     MAIL_HOST=smtpout.secureserver.net
+     MAIL_PORT=465
+     MAIL_SCHEME=smtps
+     MAIL_USERNAME=la-cuenta@arthub.com.pe
+     MAIL_PASSWORD=la-contraseña-de-esa-cuenta
+     MAIL_FROM_ADDRESS=la-cuenta@arthub.com.pe
+     ```
+  2. Recarga la configuración:
+     ```bash
+     cd /var/www/arthub-back && sudo -u deploy php artisan optimize && systemctl reload php8.5-fpm
+     ```
+  3. Envía un correo de prueba (ver «Problemas frecuentes» en `DESPLIEGUE.md`).
+- [ ] **Cambiar la contraseña del admin** por una de 12 caracteres o más (hoy tiene 8). Se hace desde el panel: arriba a la derecha → perfil.
+- [ ] **Respaldos diarios** de la base y de `storage/app`, con el cron de la sección «Respaldos» de `DESPLIEGUE.md`. Además, activar los **snapshots del VPS** en hPanel.
+- [ ] **Apagar lo anterior:**
+  - [ ] **Vercel:** quitar el despliegue automático del proyecto, o eliminarlo.
+  - [ ] **Railway o Render:** apagar el backend y la base anteriores.
+- [ ] **Quitar el acceso SSH de Claude** cuando ya no haga falta. Como root:
+  ```bash
+  sed -i '/claude-arthub-20261024/d' /root/.ssh/authorized_keys
+  ```
+- [ ] **Cloudflare R2 (opcional):** en el VPS los archivos no se borran al actualizar; R2 serviría como copia fuera del servidor.
+
+### Cómo actualizar el sitio después de un cambio en `main`
+
+```bash
+ssh deploy@2.24.212.131
+cd /var/www/arthub-back  && ./deploy/deploy.sh    # primero el backend (migraciones y cachés)
+cd /var/www/arthub-front && ./deploy/deploy.sh    # después el sitio (compila y reinicia con PM2)
+```
 
 ## 2. Pruebas
 
