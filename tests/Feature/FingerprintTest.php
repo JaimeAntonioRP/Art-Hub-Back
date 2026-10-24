@@ -13,6 +13,7 @@ use App\Models\Document;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -174,6 +175,16 @@ class FingerprintTest extends TestCase
         $this->artisan('arthub:comprobar-integridad', ['--obra' => $this->artwork->id])->assertFailed();
         $this->assertFalse($document->latestVersion->fresh()->verification_ok);
         $this->assertSame('archivo no encontrado', $this->artwork->history()->where('type', 'integridad_fallida')->sole()->payload['motivo']);
+    }
+
+    public function test_integrity_check_runs_every_day(): void
+    {
+        $event = collect(app(Schedule::class)->events())
+            ->first(fn ($e) => str_contains($e->command ?? '', 'arthub:comprobar-integridad'));
+
+        $this->assertNotNull($event, 'La comprobación de integridad no está programada.');
+        $this->assertSame('0 3 * * *', $event->expression);
+        $this->assertSame('America/Lima', $event->timezone);
     }
 
     public function test_deleting_a_document_is_recorded(): void

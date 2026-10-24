@@ -2,7 +2,7 @@
 
 > Igual en **Art-Hub-Back** y **Art-Hub-Front**. Al cerrar un punto, márcalo `[x]` en los dos repos.
 > El detalle de cada semana y cómo montar el entorno están en [`CRONOGRAMA.md`](CRONOGRAMA.md).
-> Última actualización: 24 de octubre de 2026.
+> Última actualización: 24 de octubre de 2026 (guía de despliegue en VPS).
 
 ## Estado actual
 
@@ -25,18 +25,19 @@
 
 ---
 
-## 1. Urgente: servidor de producción
+## 1. Urgente: pasar a producción en el VPS de Hostinger
 
-- [ ] **Revisar los registros del primer despliegue del 23/10:** que las migraciones y el seeder hayan terminado sin errores.
-- [ ] **Entrar a `https://<backend>/ingresar`** con `ADMIN_EMAIL` y `ADMIN_PASSWORD`. Las cuentas de demostración no existen en producción.
-- [ ] **Conectar Cloudflare R2:**
-  - Buckets `arthub-media` (público) y `arthub-documentos` (privado).
-  - Variables `MEDIA_DISK=r2_media`, `DOCUMENTS_DISK=r2_documents` y las `R2_*` de `.env.example`.
-  - **Mientras no se haga, todo lo que se sube (fotos, documentos, certificados, modelos 3D) se pierde en el siguiente despliegue.**
-- [ ] **Correo real** (Resend o Amazon SES): configurar `MAIL_MAILER` y `MAIL_*`. Sin esto no llegan la recuperación de contraseña, los avisos de revisión ni las solicitudes.
-- [ ] **Programar la comprobación de integridad** a diario: `php artisan arthub:comprobar-integridad`.
-- [ ] **Respaldos automáticos** de PostgreSQL y, si se puede, un ambiente de pruebas (*staging*).
-- [ ] **Confirmar que `FRONTEND_URL` es el dominio definitivo:** va impreso en el QR de cada certificado, así que si cambia hay que reemitirlos.
+Ya hay VPS en Hostinger y el dominio está en GoDaddy. Los pasos completos están en [`DESPLIEGUE.md`](DESPLIEGUE.md), y los archivos listos para copiar en `deploy/`.
+
+- [ ] DNS en GoDaddy: `@`, `www` y `api` apuntando a la IP del VPS (paso 1).
+- [ ] Preparar el VPS: Ubuntu 24.04, Nginx, PHP 8.3, PostgreSQL, Node 22 y PM2 (pasos 2 y 3).
+- [ ] Restaurar la base actual en el VPS y configurar el backend en `api.TU_DOMINIO` (pasos 4 y 5).
+- [ ] Sitio público en `TU_DOMINIO` con PM2 (paso 6) y https con certbot (paso 8).
+- [ ] **Correo real:** configurar `MAIL_*` (Resend, Amazon SES o SMTP). Sin esto no llegan la recuperación de contraseña, los avisos de revisión ni las solicitudes.
+- [ ] Cron de Laravel instalado (`crontab deploy/crontab`), para la comprobación diaria de integridad.
+- [ ] Respaldos diarios de la base y de `storage/app`, más los snapshots del VPS en hPanel.
+- [ ] Apagar Vercel y Railway/Render cuando el VPS funcione (paso 10).
+- [ ] **R2 deja de ser urgente:** en el VPS los archivos no se borran al actualizar. Sigue siendo útil para tener respaldo fuera del servidor.
 
 ## 2. Pruebas
 

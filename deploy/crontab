@@ -1,0 +1,3 @@
+# Cron de Laravel (tareas programadas, como la comprobación diaria de integridad).
+# Instalar como el usuario de despliegue:  crontab deploy/crontab
+* * * * * cd /var/www/arthub-back && php artisan schedule:run >> /dev/null 2>&1
