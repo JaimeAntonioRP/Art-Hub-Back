@@ -1,7 +1,7 @@
 # ArtHub · Cronograma y estado del proyecto
 
 > Este archivo es igual en **Art-Hub-Back** y **Art-Hub-Front**. Sirve para retomar el trabajo en otra máquina.
-> Última actualización: 23 de octubre de 2026. **Las 8 semanas están programadas.** Lo que falta es despliegue, pruebas con el cliente y en celulares reales, y contenido (sección 4).
+> Última actualización: 24 de octubre de 2026. **Las 8 semanas están programadas y publicadas en `main` (23/10/2026).** La lista corta de lo que falta está en [`PENDIENTES.md`](PENDIENTES.md).
 
 Las bases son la propuesta *ArtHub_2_Etapas.docx* (dos etapas de S/ 6,000 cada una) y la hoja de ruta acordada:
 
@@ -156,13 +156,13 @@ Notas:
 - [ ] **Corregir las medidas de las obras de ejemplo.** En 12 de las 19 obras las medidas no coinciden con la foto: casi siempre están escritas como «lado corto × lado largo» aunque la obra sea vertical. El modelo de AR no se deforma, porque usa la proporción de la foto y el lado más largo registrado, pero la ficha y el certificado muestran las medidas tal como están cargadas.
 - [ ] Que el cliente apruebe la redacción del certificado PDF («no constituye un peritaje de autenticidad»).
 
-### Antes de fusionar en `main` y desplegar
+### Despliegue (`main` ya publicado el 23/10/2026)
 
 **Atención: publicar en `main` despliega en producción.**
 - **Vercel** publica el front.
 - **El backend** (`Dockerfile` / `nixpacks.toml`) ejecuta `php artisan migrate --force` y `php artisan db:seed --force` al arrancar, **sobre la base real**.
 
-Los PR abiertos (Art-Hub-Back#1 y Art-Hub-Front#1) solo cubren la Etapa 1. Para publicar todo, hay que fusionar la última rama (`semana-8-realidad-aumentada`) en `main`; el avance es directo (*fast-forward*).
+Ya se fusionó `semana-8-realidad-aumentada` en `main` en los dos repos. Los PR Art-Hub-Back#1 y Art-Hub-Front#1 quedaron cerrados como fusionados. Cada nuevo cambio va en una rama desde `main`, y antes de publicarlo hay que tener en cuenta lo siguiente:
 
 1. Respaldar la base de datos de producción.
 2. Definir en el servidor:
