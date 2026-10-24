@@ -9,15 +9,15 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Se ejecuta en cada deploy, así que solo crea lo que falta:
- * nunca borra registros ni sobrescribe lo que se editó desde los paneles.
+ * Crea solo lo que falta: nunca borra registros ni sobrescribe lo que se editó desde los paneles.
+ * El contenido de ejemplo es la colección de Augusto Garcia Peñalva; no se cargan otros
+ * artistas (eran artistas reales con biografías inventadas).
  */
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
         $this->seedAdmin();
-        $this->seedArtists();
         $this->seedAugustoCollection();
         $this->call(SiteContentSeeder::class);
 
@@ -51,117 +51,6 @@ class DatabaseSeeder extends Seeder
             'role'      => User::ROLE_ADMIN,
             'is_active' => true,
         ]);
-    }
-
-    private function seedArtists(): void
-    {
-        $artists = [
-            [
-                'name'              => 'Mariano Fuentes Lira',
-                'slug'              => 'mariano-fuentes-lira',
-                'origin'            => 'Cusco, Perú',
-                'birth_year'        => 1920,
-                'death_year'        => 1995,
-                'specialty'         => 'Pintura al óleo, Barroco Andino',
-                'bio'               => 'Mariano Fuentes Lira fue el gran cronista visual del Cusco colonial y festivo. Nacido en el barrio de San Blas, estudió en la Escuela Regional de Bellas Artes del Cusco bajo la tutela de Francisco González Gamarra. Su obra documenta con rigor y belleza las procesiones, fiestas patronales y paisajes del sur andino peruano. Maestro de la composición monumental, sus óleos de gran formato capturan la esencia del barroco andino fusionando la técnica académica europea con la iconografía incaica. Participó en exposiciones en Lima, Buenos Aires y Madrid durante las décadas de 1960 y 1970, recibiendo el Premio Nacional de Pintura en 1968. Su legado influye directamente en tres generaciones de pintores cusqueños.',
-                'profile_image_url' => 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800',
-                'featured'          => true,
-            ],
-            [
-                'name'              => 'Edilberto Mérida',
-                'slug'              => 'edilberto-merida',
-                'origin'            => 'Cusco, Perú',
-                'birth_year'        => 1952,
-                'death_year'        => null,
-                'specialty'         => 'Técnica mixta, Arte religioso contemporáneo',
-                'bio'               => 'Edilberto Mérida es uno de los artistas vivos más reconocidos de la escuela cusqueña contemporánea. Formado en la Escuela de Bellas Artes del Cusco, desarrolló una técnica personal que combina el pan de oro, pigmentos minerales y acrílicos sobre madera envejecida. Su serie sobre la Virgen del Carmen de Paucartambo es considerada patrimonio vivo de la festividad declarada por la UNESCO. Ha expuesto en galerías de Nueva York, París y Tokio, y sus obras forman parte de colecciones privadas en más de 20 países. En 2015 recibió la Orden del Sol del Gobierno Peruano por su contribución a la difusión del arte andino.',
-                'profile_image_url' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800',
-                'featured'          => true,
-            ],
-            [
-                'name'              => 'Hilario Mendívil',
-                'slug'              => 'hilario-mendivil',
-                'origin'            => 'Cusco, Perú',
-                'birth_year'        => 1929,
-                'death_year'        => 1977,
-                'specialty'         => 'Escultura en yeso de papa, Arte religioso popular',
-                'bio'               => 'Hilario Mendívil revolucionó la imaginería religiosa andina con su característica técnica de cuellos alargados y expresiones serenas, inspirada en la deidad inca Wiracocha. Trabajó principalmente con yeso de papa (masa de papa seca) mezclado con paja y cola de carpintero, creando figuras de una elegancia etérea única en el mundo. Su taller en el barrio de San Blas se convirtió en referente del arte popular cusqueño. Fue reconocido por el Ministerio de Educación como Tesoro Humano Vivo. Tras su fallecimiento, su esposa Georgina Arizapana e hijos continuaron el estilo que hoy lleva el nombre de "escuela mendivil".',
-                'profile_image_url' => 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800',
-                'featured'          => true,
-            ],
-            [
-                'name'              => 'Maximiliana Palomino',
-                'slug'              => 'maximiliana-palomino',
-                'origin'            => 'Pisaq, Cusco, Perú',
-                'birth_year'        => 1968,
-                'death_year'        => null,
-                'specialty'         => 'Técnica mixta, Simbolismo andino, Pigmentos minerales',
-                'bio'               => 'Maximiliana Palomino es una de las voces más originales del arte peruano contemporáneo. Nacida en Pisaq, en el corazón del Valle Sagrado, creció inmersa en las tradiciones textiles y ceremoniales de su comunidad quechua. Estudió en Lima y luego en la Escuela de Arte de Florencia con una beca Fulbright. Su obra fusiona la geometría sagrada andina con el expresionismo abstracto occidental, usando pigmentos minerales recolectados personalmente en las montañas del Cusco. Ha sido incluida en las bienales de São Paulo (2010), Venecia (2017) y en la colección permanente del Museo de Arte de Lima (MALI).',
-                'profile_image_url' => 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800',
-                'featured'          => true,
-            ],
-            [
-                'name'              => 'Victor Delfín Quiroga',
-                'slug'              => 'victor-delfin-quiroga',
-                'origin'            => 'Ica, Perú',
-                'birth_year'        => 1927,
-                'death_year'        => null,
-                'specialty'         => 'Escultura, Pintura al óleo, Paisajismo andino',
-                'bio'               => 'Victor Delfín es el escultor más importante del Perú contemporáneo. Su monumental obra El Beso en el Parque del Amor de Miraflores, Lima, es el ícono visual más fotografiado del país. Aunque nacido en Ica, su obra pictórica gira en torno al paisaje andino del sur peruano, especialmente los nevados y ríos del Cusco que visita cada año. Estudió en la Escuela de Bellas Artes de Lima y perfeccionó su técnica en Italia. Ha recibido el Premio Nacional de Cultura, la Palma Magisterial y la Medalla de Honor del Congreso. A sus 97 años continúa activo en su taller de Barranco.',
-                'profile_image_url' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
-                'featured'          => true,
-            ],
-            [
-                'name'              => 'Joaquín López Antay',
-                'slug'              => 'joaquin-lopez-antay',
-                'origin'            => 'Ayacucho, Perú',
-                'birth_year'        => 1897,
-                'death_year'        => 1981,
-                'specialty'         => 'Retablo ayacuchano, Arte popular narrativo',
-                'bio'               => 'Joaquín López Antay transformó el antiguo "san marcos" colonial en el retablo ayacuchano moderno: cajas de madera con escenas narrativas en dos pisos que documentan la vida campesina, religiosa y mítica de los Andes. Aprendió el oficio de su abuela y lo practicó durante 80 años, produciendo más de 3,000 piezas. En 1975 recibió el Premio Nacional de Cultura, decisión que generó el famoso "debate del artesano" sobre los límites entre arte y artesanía en el Perú. Sus retablos están en los museos Smithsonian (Washington), Etnológico (Madrid) y en la colección del MALI. Declarado Patrimonio Cultural Vivo por el Gobierno Peruano.',
-                'profile_image_url' => 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=800',
-                'featured'          => false,
-            ],
-            [
-                'name'              => 'Antonio Olave Palomino',
-                'slug'              => 'antonio-olave-palomino',
-                'origin'            => 'Cusco, Perú',
-                'birth_year'        => 1888,
-                'death_year'        => 1959,
-                'specialty'         => 'Pintura costumbrista, Óleo sobre tela',
-                'bio'               => 'Antonio Olave Palomino fue el cronista cotidiano del Cusco de la primera mitad del siglo XX. Sus pinturas al óleo registran con precisión documental los mercados, calles empedradas y tipos humanos del Cusco andino antes de la masificación turística. Estudió en Lima en la Academia de Bellas Artes y regresó al Cusco para dedicar su obra a la memoria colectiva de su ciudad. Su influencia en la pintura costumbrista cusqueña es comparable a la de Pancho Fierro en Lima. Colecciones importantes en el Museo Inka de la UNSAAC y en el Museo de Arte de Lima.',
-                'profile_image_url' => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800',
-                'featured'          => false,
-            ],
-            [
-                'name'              => 'Marcos Zapata',
-                'slug'              => 'marcos-zapata',
-                'origin'            => 'Cusco, Perú',
-                'birth_year'        => 1710,
-                'death_year'        => 1773,
-                'specialty'         => 'Pintura colonial, Escuela Cusqueña del siglo XVIII',
-                'bio'               => 'Marcos Zapata es el pintor más prolífico y reconocido de la Escuela Cusqueña del siglo XVIII. Discípulo de Basilio de Santa Cruz, desarrolló un estilo propio que sintetiza la técnica flamenca, la iconografía católica y los elementos andinos precolombinos. Su obra más famosa, La Última Cena (1753) en la Catedral del Cusco, muestra a Cristo y los apóstoles comiendo cuy, chicha y tamales: una afirmación magistral de la identidad andina dentro del canon religioso occidental. Pintó los 50 lienzos de la vida de la Virgen para la Catedral del Cusco, el mayor ciclo iconográfico colonial de América del Sur. Sus obras se conservan en iglesias, museos y colecciones privadas de todo el mundo.',
-                'profile_image_url' => 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=800',
-                'featured'          => true,
-            ],
-            [
-                'name'              => 'Juan de Espinosa Medrano',
-                'slug'              => 'juan-de-espinosa-medrano',
-                'origin'            => 'Calcauso, Apurímac, Perú',
-                'birth_year'        => 1629,
-                'death_year'        => 1688,
-                'specialty'         => 'Pintura colonial, Retórica, Barroco andino temprano',
-                'bio'               => 'Conocido como "El Lunarejo", Juan de Espinosa Medrano fue el mayor intelectual del barroco colonial peruano: teólogo, predicador, dramaturgo y pintor. Estudió en el Colegio de San Antonio Abad del Cusco donde luego sería catedrático. Sus sermones en quechua y latín son documentos únicos del pensamiento andino colonial. Su producción pictórica, aunque escasa, muestra un dominio del claroscuro y la composición comparable a los maestros europeos de su época. Las obras que se le atribuyen combinan la severidad tenebrista con una sensibilidad colorista propia del mundo andino. Su figura inspiró la novela "El zorro de arriba y el zorro de abajo" de José María Arguedas.',
-                'profile_image_url' => 'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=800',
-                'featured'          => false,
-            ],
-        ];
-
-        foreach ($artists as $data) {
-            $data['profile_image_url'] = '/artistas/'.$data['slug'].'.jpg';
-            $data['status'] = Artist::STATUS_APROBADO;
-            Artist::firstOrCreate(['slug' => $data['slug']], $data);
-        }
     }
 
     private function seedAugustoCollection(): void
