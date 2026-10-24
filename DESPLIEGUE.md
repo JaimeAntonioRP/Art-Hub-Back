@@ -8,11 +8,11 @@
                 GoDaddy (DNS)
    TU_DOMINIO ─┐               ┌─ api.TU_DOMINIO
                ▼               ▼
-        ┌──────── VPS Hostinger (Ubuntu 24.04) ────────┐
+        ┌──────── VPS Hostinger (Ubuntu 26.04) ────────┐
         │  Nginx + https (Let's Encrypt)                │
         │   ├─ TU_DOMINIO      → Next.js (PM2, :3000)   │  /var/www/arthub-front
-        │   └─ api.TU_DOMINIO  → Laravel (PHP-FPM 8.3)  │  /var/www/arthub-back
-        │  PostgreSQL 16 · cron de Laravel              │
+        │   └─ api.TU_DOMINIO  → Laravel (PHP-FPM 8.5)  │  /var/www/arthub-back
+        │  PostgreSQL 18 · cron de Laravel              │
         └───────────────────────────────────────────────┘
 ```
 
@@ -33,7 +33,7 @@ Ten a mano:
   `pg_dump` debe ser de la misma versión de PostgreSQL que el servidor actual, o más nueva.
 - [ ] **El `APP_KEY` del backend actual**, copiado de las variables de Railway o Render. Así siguen funcionando las sesiones y los enlaces firmados.
 - [ ] **Las credenciales del correo:** Resend, Amazon SES o el SMTP de tu correo.
-- [ ] **El sistema operativo del VPS:** en hPanel → VPS → **Sistema operativo**, elige **Ubuntu 24.04** limpio, sin panel. **Reinstalar el sistema borra el VPS.**
+- [ ] **El sistema operativo del VPS:** en hPanel → VPS → **Sistema operativo**, elige **Ubuntu 26.04** (o 24.04) limpio, sin panel. **Reinstalar el sistema borra el VPS.**
 
 ## 1. DNS en GoDaddy (hazlo primero: tarda en propagarse)
 
@@ -67,44 +67,42 @@ usermod -aG sudo deploy
 # Cortafuegos: SSH ahora; la web se abre después de instalar Nginx
 ufw allow OpenSSH && ufw --force enable
 
-# Nginx, PHP 8.3, PostgreSQL, Composer, certbot
+# Nginx, PHP, PostgreSQL, Composer, certbot. Ubuntu 26.04 trae PHP 8.5 y PostgreSQL 18
+# (en Ubuntu 24.04 es PHP 8.3: cambia «8.5» por «8.3» aquí y en las líneas siguientes).
 apt install -y nginx postgresql git unzip composer certbot python3-certbot-nginx \
-  php8.3-fpm php8.3-cli php8.3-pgsql php8.3-mbstring php8.3-xml php8.3-curl \
-  php8.3-zip php8.3-gd php8.3-intl php8.3-bcmath
+  php8.5-fpm php8.5-cli php8.5-pgsql php8.5-mbstring php8.5-xml php8.5-curl \
+  php8.5-zip php8.5-gd php8.5-intl php8.5-bcmath
 ufw allow 'Nginx Full'
 
-# Node.js 22 LTS y PM2 (para el sitio Next.js)
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-apt install -y nodejs
+# Node.js 22 y PM2 (para el sitio Next.js). Ubuntu 26.04 ya trae Node 22;
+# en 24.04, antes: curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt install -y nodejs npm
 npm install -g pm2
 
 # PHP-FPM corre como «deploy»: así los archivos que crea Laravel y los del despliegue tienen el mismo dueño
-sed -i 's/^user = www-data/user = deploy/; s/^group = www-data/group = deploy/' /etc/php/8.3/fpm/pool.d/www.conf
-systemctl restart php8.3-fpm
+sed -i 's/^user = www-data/user = deploy/; s/^group = www-data/group = deploy/' /etc/php/8.5/fpm/pool.d/www.conf
+systemctl restart php8.5-fpm
 
 # El script de despliegue puede recargar PHP sin pedir contraseña
-echo 'deploy ALL=NOPASSWD: /usr/bin/systemctl reload php8.3-fpm' > /etc/sudoers.d/arthub
+echo 'deploy ALL=NOPASSWD: /usr/bin/systemctl reload php8.5-fpm' > /etc/sudoers.d/arthub
 chmod 440 /etc/sudoers.d/arthub
 
 mkdir -p /var/www && chown deploy:deploy /var/www
 ```
 
-## 3. Acceso del servidor a GitHub
+## 3. Bajar los repos
 
-Como `deploy` (`su - deploy`):
-
-```bash
-ssh-keygen -t ed25519 -C "arthub-vps" -N "" -f ~/.ssh/id_ed25519
-cat ~/.ssh/id_ed25519.pub
-```
-
-Esa clave pública se agrega en GitHub, en **cada** repo: **Settings → Deploy keys → Add deploy key**, sin permiso de escritura. Si GitHub no acepta la misma clave en los dos repos, agrégala como clave SSH de tu cuenta en **Settings → SSH and GPG keys**.
+Los dos repos son públicos, así que se clonan por https, sin llaves. Como `deploy` (`su - deploy`):
 
 ```bash
 cd /var/www
-git clone git@github.com:JaimeAntonioRP/Art-Hub-Back.git arthub-back
-git clone git@github.com:JaimeAntonioRP/Art-Hub-Front.git arthub-front
+git clone https://github.com/JaimeAntonioRP/Art-Hub-Back.git arthub-back
+git clone https://github.com/JaimeAntonioRP/Art-Hub-Front.git arthub-front
 ```
+
+Si algún día se vuelven privados, crea una llave en el servidor (`ssh-keygen -t ed25519`) y agrégala en GitHub, en **Settings → Deploy keys**.
+
+> **Que sean públicos implica una regla:** nunca subas un `.env` ni claves al repositorio.
 
 ## 4. Base de datos
 
@@ -136,7 +134,9 @@ cd /var/www/arthub-back
 cp deploy/env.vps.example .env
 nano .env    # completa: APP_KEY, TU_DOMINIO, DB_PASSWORD, MAIL_*, ADMIN_*
 
-composer install --no-dev --optimize-autoloader --no-interaction
+# --ignore-platform-req=php: openspout 4.x (de Filament, solo para exportar a Excel, que no usamos)
+# aún no declara PHP 8.5. Los 105 tests pasan en PHP 8.5.4.
+composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=php
 php artisan migrate --force
 php artisan storage:link
 php artisan optimize && php artisan filament:optimize
