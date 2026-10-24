@@ -2,7 +2,7 @@
 
 > Igual en **Art-Hub-Back** y **Art-Hub-Front**. Al cerrar un punto, márcalo `[x]` en los dos repos.
 > El detalle de cada semana y cómo montar el entorno están en [`CRONOGRAMA.md`](CRONOGRAMA.md).
-> Última actualización: 24 de octubre de 2026 (guía de despliegue en VPS).
+> Última actualización: 24 de octubre de 2026 (sitio en producción en el VPS).
 
 ## Estado actual
 
@@ -25,19 +25,25 @@
 
 ---
 
-## 1. Urgente: pasar a producción en el VPS de Hostinger
+## 1. Producción en el VPS de Hostinger
 
-Ya hay VPS en Hostinger y el dominio está en GoDaddy. Los pasos completos están en [`DESPLIEGUE.md`](DESPLIEGUE.md), y los archivos listos para copiar en `deploy/`.
+**En línea desde el 24/10/2026: https://arthub.com.pe** (sitio) y **https://api.arthub.com.pe** (API, paneles y `/ingresar`).
+- VPS `2.24.212.131`: Ubuntu 26.04, PHP 8.5, PostgreSQL 18, Node 22 y PM2.
+- El código está en `/var/www/arthub-back` y `/var/www/arthub-front`, rama `main`. Para actualizar: `./deploy/deploy.sh` en cada carpeta, como `deploy`.
+- Los pasos están en [`DESPLIEGUE.md`](DESPLIEGUE.md).
 
-- [ ] DNS en GoDaddy: `@`, `www` y `api` apuntando a la IP del VPS (paso 1).
-- [ ] Preparar el VPS: Ubuntu 24.04, Nginx, PHP 8.3, PostgreSQL, Node 22 y PM2 (pasos 2 y 3).
-- [ ] Restaurar la base actual en el VPS y configurar el backend en `api.TU_DOMINIO` (pasos 4 y 5).
-- [ ] Sitio público en `TU_DOMINIO` con PM2 (paso 6) y https con certbot (paso 8).
-- [ ] **Correo real:** configurar `MAIL_*` (Resend, Amazon SES o SMTP). Sin esto no llegan la recuperación de contraseña, los avisos de revisión ni las solicitudes.
-- [ ] Cron de Laravel instalado (`crontab deploy/crontab`), para la comprobación diaria de integridad.
-- [ ] Respaldos diarios de la base y de `storage/app`, más los snapshots del VPS en hPanel.
-- [ ] Apagar Vercel y Railway/Render cuando el VPS funcione (paso 10).
-- [ ] **R2 deja de ser urgente:** en el VPS los archivos no se borran al actualizar. Sigue siendo útil para tener respaldo fuera del servidor.
+- [x] DNS en GoDaddy: `@`, `www` y `api` apuntan al VPS.
+- [x] Servidor preparado, con cortafuegos (solo SSH y web).
+- [x] Base nueva con el seeder: solo la colección de Augusto (1 artista y 19 obras).
+- [x] Backend en `api.arthub.com.pe` y sitio en `arthub.com.pe` (PM2 arranca solo al reiniciar el servidor).
+- [x] https con Let's Encrypt en los tres nombres, con renovación automática (vence el 22/01/2027 si no se renovara).
+- [x] Cron de Laravel instalado; la comprobación de integridad corre a diario a las 03:00.
+- [x] Administrador creado (`jrodriguezphillco@gmail.com`). La contraseña se quitó del `.env`. **Conviene cambiarla por una de 12 caracteres o más** desde el panel.
+- [ ] **Correo real.** Hoy `MAIL_MAILER=log`: los avisos van al log del servidor. Para la cuenta de GoDaddy, en `/var/www/arthub-back/.env`: `MAIL_MAILER=smtp`, `MAIL_HOST=smtpout.secureserver.net`, `MAIL_PORT=465`, `MAIL_SCHEME=smtps` y `MAIL_USERNAME`, `MAIL_PASSWORD` y `MAIL_FROM_ADDRESS` con esa cuenta. Después: `php artisan optimize`.
+- [ ] **Respaldos diarios** de la base y de `storage/app` (DESPLIEGUE.md, «Respaldos»), más los snapshots del VPS en hPanel.
+- [ ] **Apagar lo anterior:** el proyecto de Vercel (o quitarle el despliegue automático) y el backend de Railway/Render.
+- [ ] **Quitar el acceso SSH de Claude** cuando ya no haga falta: borrar la línea `claude-arthub-20261024` de `/root/.ssh/authorized_keys`.
+- [ ] R2 no es urgente: en el VPS los archivos no se borran al actualizar. Sirve como respaldo fuera del servidor.
 
 ## 2. Pruebas
 
