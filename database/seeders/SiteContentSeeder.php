@@ -141,11 +141,6 @@ class SiteContentSeeder extends Seeder
                             ['title' => 'Coordina con ArtHub', 'text' => 'El equipo te contacta para acordar el pago y la entrega.'],
                         ],
                     ]),
-                    $this->block('video', [
-                        'eyebrow' => 'En video',
-                        'title' => 'ArtHub en pocos minutos',
-                        'video_url' => '/videos/como-funciona.mp4',
-                    ]),
                     $this->block('faq', [
                         'title' => 'Preguntas frecuentes',
                         'items' => [
