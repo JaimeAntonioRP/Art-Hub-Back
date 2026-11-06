@@ -2,7 +2,7 @@
 
 > Igual en **Art-Hub-Back** y **Art-Hub-Front**. Al cerrar un punto, márcalo `[x]` en los dos repos.
 > El detalle de cada semana y cómo montar el entorno están en [`CRONOGRAMA.md`](CRONOGRAMA.md).
-> Última actualización: 6 de noviembre de 2026 (requisitos nuevos en la rama `requisitos-noviembre`).
+> Última actualización: 6 de noviembre de 2026 (requisitos nuevos publicados en producción).
 
 ## Estado actual
 
@@ -86,7 +86,7 @@ cd /var/www/arthub-front && ./deploy/deploy.sh    # después el sitio (compila y
 
 ## Requisitos agregados el 06/11/2026
 
-Rama `requisitos-noviembre` en los dos repos. **Todavía no está publicada en producción.**
+**Publicado en producción el 06/11/2026** (rama `requisitos-noviembre` fusionada en `main`).
 
 ### Obras de muestra (dominio público)
 - [x] 13 obras cargadas por `SampleArtworksSeeder`: La Gioconda, El nacimiento de Venus, La joven de la perla, La ronda de noche, Las meninas, El tres de mayo de 1808, El caminante sobre el mar de nubes, La gran ola de Kanagawa, Impresión, sol naciente, Noche estrellada, El beso, El grito y Composición con rojo, amarillo y azul.
@@ -97,7 +97,7 @@ Rama `requisitos-noviembre` en los dos repos. **Todavía no está publicada en p
 - [x] Detalles de las fuentes:
   - **La gran ola** es la impresión del Met (Wikidata Q28912605).
   - **Mondrian:** se eligió la *Composition with Red, Yellow, and Blue* de 1927 (Q60469855). Hay varias versiones con ese título.
-- [ ] **En producción:** después de publicar, ejecutar `php artisan db:seed --class=SampleArtworksSeeder --force`.
+- [x] Cargadas en producción con `php artisan db:seed --class=SampleArtworksSeeder --force`.
 
 ### Verificar
 - [x] **Crear cuentas de clientes:** registro con «Crear cuenta». Llega el correo de verificación y lleva a «Mi cuenta» (`/mi-cuenta`), con el estado de sus solicitudes. Probado en local de punta a punta.
