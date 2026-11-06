@@ -2,7 +2,7 @@
 
 > Igual en **Art-Hub-Back** y **Art-Hub-Front**. Al cerrar un punto, márcalo `[x]` en los dos repos.
 > El detalle de cada semana y cómo montar el entorno están en [`CRONOGRAMA.md`](CRONOGRAMA.md).
-> Última actualización: 24 de octubre de 2026 (sitio en producción en el VPS).
+> Última actualización: 6 de noviembre de 2026 (requisitos nuevos en la rama `requisitos-noviembre`).
 
 ## Estado actual
 
@@ -83,6 +83,30 @@ ssh deploy@2.24.212.131
 cd /var/www/arthub-back  && ./deploy/deploy.sh    # primero el backend (migraciones y cachés)
 cd /var/www/arthub-front && ./deploy/deploy.sh    # después el sitio (compila y reinicia con PM2)
 ```
+
+## Requisitos agregados el 06/11/2026
+
+Rama `requisitos-noviembre` en los dos repos. **Todavía no está publicada en producción.**
+
+### Obras de muestra (dominio público)
+- [x] 13 obras cargadas por `SampleArtworksSeeder`: La Gioconda, El nacimiento de Venus, La joven de la perla, La ronda de noche, Las meninas, El tres de mayo de 1808, El caminante sobre el mar de nubes, La gran ola de Kanagawa, Impresión, sol naciente, Noche estrellada, El beso, El grito y Composición con rojo, amarillo y azul.
+- [x] Los datos (año, técnica, medidas, autor, nacimiento y muerte) salen de **Wikidata**, y las imágenes de **Wikimedia Commons**, con el enlace a su página y la licencia («Dominio público»). Nada se inventó. Los artistas no llevan biografía.
+- [x] La ficha muestra siempre autor, título, año, fuente y licencia. Cuando la fuente solo da la década, el año aparece como «c. 1830».
+- [x] Se exhiben **«No a la venta»** con la etiqueta «Obra de muestra»: no reciben solicitudes, no se venden ni se certifican.
+- [x] No se usan nombres ni logos de museos como aval. La fuente citada es Wikimedia Commons.
+- [x] Detalles de las fuentes:
+  - **La gran ola** es la impresión del Met (Wikidata Q28912605).
+  - **Mondrian:** se eligió la *Composition with Red, Yellow, and Blue* de 1927 (Q60469855). Hay varias versiones con ese título.
+- [ ] **En producción:** después de publicar, ejecutar `php artisan db:seed --class=SampleArtworksSeeder --force`.
+
+### Verificar
+- [x] **Crear cuentas de clientes:** registro con «Crear cuenta». Llega el correo de verificación y lleva a «Mi cuenta» (`/mi-cuenta`), con el estado de sus solicitudes. Probado en local de punta a punta.
+- [x] **Crear cuentas de artistas:** registro → login único → panel del artista (cubierto por tests).
+- [x] **Subir imágenes de artista:** funciona hasta 4 MB por foto. **Se corrigió el servidor**, que solo aceptaba 2 MB (`deploy/php-arthub.ini`, ya aplicado en el VPS).
+- [x] **Botón «Crear cuenta»** en el encabezado (también en el inicio) y en el menú del celular, junto a «Ingresar».
+- [x] **Aviso a info@arthub.com.pe** con los datos del cliente y de la obra en cada **solicitud de compra** y cada **venta registrada** en el panel (`SALES_NOTIFY_EMAIL`).
+- [ ] **Para que esos correos lleguen** (avisos y verificación de cuentas) hay que **activar el correo real** del servidor; ver la sección 1.
+- [ ] **Pasarela de pago:** comparativa en [`PAGOS.md`](PAGOS.md). Hay que elegir una; queda fuera del contrato actual.
 
 ## 2. Pruebas
 
