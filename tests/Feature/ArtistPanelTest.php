@@ -8,7 +8,9 @@ use App\Models\User;
 use App\Notifications\ArtistProfileReviewed;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -51,6 +53,28 @@ class ArtistPanelTest extends TestCase
         $this->assertSame('Anaq', $artist->artistic_name);
         $this->assertSame(['Óleo', 'Acuarela'], $artist->techniques);
         $this->assertSame('pendiente', $artist->status);
+    }
+
+    public function test_artist_uploads_a_profile_photo_from_the_phone(): void
+    {
+        config(['arthub.disks.media' => 'media-test']);
+        Storage::fake('media-test');
+
+        // 3,5 MB: más que el límite de fábrica de PHP (2 MB), dentro del permitido (4 MB).
+        Livewire::test(MiPerfil::class)
+            ->fillForm(['profile_image_url' => UploadedFile::fake()->image('foto.jpg', 1600, 1600)->size(3500)])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $artist = $this->user->artist()->first();
+        $this->assertStringStartsWith('artists/', $artist->profile_image_url);
+        Storage::disk('media-test')->assertExists($artist->profile_image_url);
+        $this->assertSame(Storage::disk('media-test')->url($artist->profile_image_url), $artist->photo_url);
+
+        Livewire::test(MiPerfil::class)
+            ->fillForm(['profile_image_url' => UploadedFile::fake()->image('grande.jpg')->size(5000)])
+            ->call('save')
+            ->assertHasFormErrors(['profile_image_url']);
     }
 
     public function test_artist_resubmits_an_observed_profile(): void

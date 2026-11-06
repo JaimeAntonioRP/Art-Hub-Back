@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Notifications\SaleRegistered;
 use DomainException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Registro manual de una reserva, venta o transferencia (§26). El pago se coordina fuera
@@ -56,6 +59,10 @@ class Sale extends Model
     /** Registros posibles según la disponibilidad actual de la obra. */
     public static function allowedTypesFor(Artwork $artwork): array
     {
+        if ($artwork->is_sample) {
+            return []; // las obras de muestra de dominio público no se venden
+        }
+
         return array_keys(array_filter(self::RULES, fn (array $rule) => in_array($artwork->availability, $rule['from'], true)));
     }
 
@@ -100,6 +107,10 @@ class Sale extends Model
     {
         $rule = self::RULES[$data['type']] ?? throw new InvalidArgumentException('Tipo de registro desconocido.');
 
+        if ($artwork->is_sample) {
+            throw new DomainException('Las obras de muestra de dominio público no se venden ni se transfieren.');
+        }
+
         if (! in_array($artwork->availability, $rule['from'], true)) {
             throw new DomainException(self::RULE_ERRORS[$data['type']]);
         }
@@ -107,7 +118,7 @@ class Sale extends Model
             throw new InvalidArgumentException('La solicitud es de otra obra.');
         }
 
-        return DB::transaction(function () use ($artwork, $data, $by, $request, $rule) {
+        $sale = DB::transaction(function () use ($artwork, $data, $by, $request, $rule) {
             $sale = $artwork->sales()->create([
                 ...$data,
                 'currency'              => isset($data['final_price']) && $data['final_price'] !== null ? ($data['currency'] ?? $artwork->currency) : null,
@@ -142,6 +153,18 @@ class Sale extends Model
 
             return $sale;
         });
+
+        // Aviso al equipo comercial con los datos del comprador (fuera de la transacción:
+        // la venta ya quedó registrada aunque el correo falle).
+        if ($sale->type === self::TYPE_VENTA && ($email = config('arthub.sales_email'))) {
+            try {
+                Notification::route('mail', $email)->notify(new SaleRegistered($sale));
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
+        return $sale;
     }
 
     /**

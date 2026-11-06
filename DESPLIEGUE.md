@@ -88,6 +88,12 @@ echo 'deploy ALL=NOPASSWD: /usr/bin/systemctl reload php8.5-fpm' > /etc/sudoers.
 chmod 440 /etc/sudoers.d/arthub
 
 mkdir -p /var/www && chown deploy:deploy /var/www
+
+# Límites de subida: los de fábrica (2 MB) no dejan subir fotos de celular ni documentos.
+# El archivo está en el repo del backend (deploy/php-arthub.ini); cópialo después del paso 3.
+#   cp /var/www/arthub-back/deploy/php-arthub.ini /etc/php/8.5/fpm/conf.d/99-arthub.ini
+#   cp /var/www/arthub-back/deploy/php-arthub.ini /etc/php/8.5/cli/conf.d/99-arthub.ini
+#   systemctl reload php8.5-fpm
 ```
 
 ## 3. Bajar los repos
@@ -206,6 +212,7 @@ Certbot agrega el https a los dos sitios, redirige http → https y renueva el c
 
 - [ ] `https://TU_DOMINIO`: la portada, el catálogo `/obras` con filtros y la ficha de una obra.
 - [ ] `https://api.TU_DOMINIO/ingresar`: entra con `ADMIN_EMAIL` y `ADMIN_PASSWORD` y llega a `/admin`.
+- [ ] Sube una foto de celular (3–5 MB) en el panel: si falla, revisa los límites de PHP del paso 2.
 - [ ] Desde la ficha, envía una solicitud de prueba: llega el correo al admin y al interesado.
 - [ ] Emite un certificado de prueba: el QR del PDF debe abrir `https://TU_DOMINIO/verificar/…`.
 - [ ] En el celular, abre una obra y prueba **«Ver en mi pared»**: ya hay https, así que la cámara en modo AR debería abrir.

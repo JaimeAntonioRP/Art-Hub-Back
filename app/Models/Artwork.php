@@ -80,6 +80,7 @@ class Artwork extends Model
         'artist_id',
         'title',
         'year',
+        'year_circa',
         'technique',
         'support',
         'height_cm',
@@ -95,6 +96,11 @@ class Artwork extends Model
         'status',
         'history_notes',
         'model_3d_url',
+        // Obras de muestra de dominio público (SampleArtworksSeeder).
+        'is_sample',
+        'source',
+        'source_url',
+        'license',
         // Campos de compatibilidad con los formularios actuales (ver accessors).
         'artist_name',
         'image_url',
@@ -130,6 +136,8 @@ class Artwork extends Model
             'depth_cm'     => 'decimal:2',
             'weight_kg'    => 'decimal:2',
             'show_price'   => 'boolean',
+            'is_sample'    => 'boolean',
+            'year_circa'   => 'boolean',
             'published_at' => 'datetime',
         ];
     }
@@ -251,7 +259,7 @@ class Artwork extends Model
     public function toCard(): array
     {
         return [
-            ...$this->only(['id', 'code', 'title', 'technique', 'year', 'price', 'currency', 'show_price', 'availability', 'model_3d_url']),
+            ...$this->only(['id', 'code', 'title', 'technique', 'year', 'year_circa', 'price', 'currency', 'show_price', 'availability', 'is_sample', 'model_3d_url']),
             'artist_name' => $this->artist_name,
             'artist_slug' => $this->artist?->slug,
             'image_url' => $this->image_url,

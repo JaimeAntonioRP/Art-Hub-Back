@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->seedAdmin();
         $this->seedAugustoCollection();
+        $this->call(SampleArtworksSeeder::class);
         $this->call(SiteContentSeeder::class);
 
         // En local, además, cuentas para probar cada rol (nunca en producción).

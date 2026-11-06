@@ -127,9 +127,31 @@ class CatalogTest extends TestCase
         $this->assertNull($request->user_id);
 
         Notification::assertSentTo($admin, NewCommercialRequest::class);
-        Notification::assertCount(2); // el admin inactivo no recibe nada
+        Notification::assertCount(3); // admin activo, buzón comercial e interesado; el admin inactivo no
         Notification::assertSentTo(new AnonymousNotifiable, CommercialRequestReceived::class,
             fn ($n, $channels, $notifiable) => $notifiable->routes['mail'] === 'lucia@example.com');
+        Notification::assertSentTo(new AnonymousNotifiable, NewCommercialRequest::class,
+            fn ($n, $channels, $notifiable) => $notifiable->routes['mail'] === 'info@arthub.com.pe');
+    }
+
+    public function test_information_requests_do_not_go_to_the_sales_inbox(): void
+    {
+        Notification::fake();
+        $artwork = $this->published($this->artist('Ana Mamani'));
+
+        $this->postJson("/api/artworks/{$artwork->id}/requests", $this->requestPayload(['type' => 'informacion']))->assertCreated();
+
+        Notification::assertNotSentTo(new AnonymousNotifiable, NewCommercialRequest::class,
+            fn ($n, $channels, $notifiable) => $notifiable->routes['mail'] === 'info@arthub.com.pe');
+    }
+
+    public function test_a_mail_failure_does_not_lose_the_request(): void
+    {
+        Notification::shouldReceive('send')->andThrow(new \RuntimeException('SMTP caído'));
+        $artwork = $this->published($this->artist('Ana Mamani'));
+
+        $this->postJson("/api/artworks/{$artwork->id}/requests", $this->requestPayload())->assertCreated();
+        $this->assertSame(1, CommercialRequest::count());
     }
 
     public function test_request_requires_consent_rejects_bots_and_unpublished_works(): void

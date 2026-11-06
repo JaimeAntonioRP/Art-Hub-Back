@@ -93,6 +93,10 @@ class ArtworkController extends Controller
             'weight_kg' => $artwork->weight_kg,
             'description' => $artwork->description,
             'history_notes' => $artwork->history_notes,
+            // Obras de muestra: de dónde sale la imagen y con qué licencia (se muestra en la ficha).
+            'source' => $artwork->source,
+            'source_url' => $artwork->source_url,
+            'license' => $artwork->license,
             'status' => $artwork->status,
             'images' => $artwork->images->map(fn ($i) => $i->only(['id', 'kind', 'url', 'is_primary']))->values(),
             'artist' => $artwork->artist ? [

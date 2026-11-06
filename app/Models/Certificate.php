@@ -82,6 +82,9 @@ class Certificate extends Model
      */
     public static function issueFor(Artwork $artwork, User $by): self
     {
+        if ($artwork->is_sample) {
+            throw new DomainException('Las obras de muestra de dominio público no se certifican.');
+        }
         if (! in_array($artwork->status, self::ISSUABLE_ARTWORK_STATUSES, true)) {
             throw new DomainException('Solo se emite el certificado de una obra aprobada o publicada.');
         }

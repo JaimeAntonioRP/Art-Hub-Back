@@ -29,7 +29,7 @@ class LoginTest extends TestCase
         foreach ([
             User::ROLE_ADMIN     => url('/admin'),
             User::ROLE_ARTISTA   => url('/artista'),
-            User::ROLE_COMPRADOR => 'https://arthub.test/obras',
+            User::ROLE_COMPRADOR => url('/mi-cuenta'),
         ] as $role => $home) {
             $this->user($role);
             $this->post('/ingresar', ['email' => "{$role}@example.com", 'password' => 'password'])->assertRedirect($home);

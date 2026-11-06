@@ -99,6 +99,36 @@ final class ArtworkFields
                         ->maxLength(255)
                         ->columnSpan(2),
                 ]),
+            Section::make('Obra de muestra (dominio público)')
+                ->description('Para exhibir obras de dominio público: se muestran «No a la venta», con la fuente y la licencia de la imagen.')
+                ->visible($forAdmin)
+                ->collapsed(fn (?Artwork $record) => ! $record?->is_sample)
+                ->columns(2)
+                ->schema([
+                    Toggle::make('is_sample')
+                        ->label('Es una obra de muestra')
+                        ->helperText('No recibe solicitudes, no se vende ni se certifica.')
+                        ->live()
+                        ->afterStateUpdated(fn (bool $state, $set) => $state ? $set('availability', 'no_venta') : null)
+                        ->columnSpanFull(),
+                    Toggle::make('year_circa')
+                        ->label('Año aproximado')
+                        ->helperText('Se muestra como «c. 1830».'),
+                    TextInput::make('source')
+                        ->label('Fuente de la imagen')
+                        ->placeholder('Wikimedia Commons')
+                        ->required(fn (Get $get) => (bool) $get('is_sample'))
+                        ->maxLength(120),
+                    TextInput::make('source_url')
+                        ->label('Enlace a la fuente')
+                        ->url()
+                        ->maxLength(2048),
+                    TextInput::make('license')
+                        ->label('Licencia')
+                        ->placeholder('Dominio público')
+                        ->required(fn (Get $get) => (bool) $get('is_sample'))
+                        ->maxLength(120),
+                ]),
             Section::make('Descripción e historia')
                 ->schema([
                     Textarea::make('description')

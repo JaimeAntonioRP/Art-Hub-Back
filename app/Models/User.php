@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -10,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -30,6 +31,7 @@ class User extends Authenticatable implements FilamentUser
     private const PANEL_ROLES = [
         'admin'   => self::ROLE_ADMIN,
         'artista' => self::ROLE_ARTISTA,
+        'cliente' => self::ROLE_COMPRADOR, // «Mi cuenta»: sus solicitudes
     ];
 
     protected $fillable = [
@@ -85,7 +87,7 @@ class User extends Authenticatable implements FilamentUser
         return match ($this->role) {
             self::ROLE_ADMIN   => url('/admin'),
             self::ROLE_ARTISTA => url('/artista'),
-            default            => config('app.frontend_url').'/obras',
+            default            => url('/mi-cuenta'),
         };
     }
 
@@ -98,6 +100,7 @@ class User extends Authenticatable implements FilamentUser
         $allowed = match ($this->role) {
             self::ROLE_ADMIN   => 'admin|expediente',
             self::ROLE_ARTISTA => 'artista|expediente',
+            self::ROLE_COMPRADOR => 'mi-cuenta',
             default            => null,
         };
 

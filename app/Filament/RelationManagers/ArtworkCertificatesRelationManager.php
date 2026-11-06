@@ -88,7 +88,9 @@ class ArtworkCertificatesRelationManager extends RelationManager
                     ->icon(Heroicon::OutlinedDocumentCheck)
                     ->visible(fn () => self::isAdmin())
                     ->disabled(fn () => ! $this->canIssue())
-                    ->tooltip(fn () => $this->canIssue() ? null : 'La obra debe estar aprobada o publicada.')
+                    ->tooltip(fn () => $this->canIssue() ? null : ($this->getOwnerRecord()->is_sample
+                        ? 'Las obras de muestra de dominio público no se certifican.'
+                        : 'La obra debe estar aprobada o publicada.'))
                     ->requiresConfirmation()
                     ->modalHeading(fn () => $this->hasVigente() ? 'Reemitir el certificado' : 'Emitir el certificado')
                     ->modalDescription(fn () => ($this->hasVigente()
@@ -156,6 +158,6 @@ class ArtworkCertificatesRelationManager extends RelationManager
         /** @var Artwork $artwork */
         $artwork = $this->getOwnerRecord();
 
-        return in_array($artwork->status, Certificate::ISSUABLE_ARTWORK_STATUSES, true);
+        return ! $artwork->is_sample && in_array($artwork->status, Certificate::ISSUABLE_ARTWORK_STATUSES, true);
     }
 }

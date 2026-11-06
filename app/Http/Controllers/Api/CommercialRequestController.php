@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
+use Throwable;
 
 /**
  * Solicitud de información o intención de compra sobre una obra (§14).
@@ -22,6 +23,7 @@ class CommercialRequestController extends Controller
     public function store(Request $request, int $artworkId): JsonResponse
     {
         $artwork = Artwork::published()->findOrFail($artworkId);
+        abort_if($artwork->is_sample, 422, 'Esta es una obra de muestra de dominio público: no está a la venta.');
 
         $data = $request->validate([
             'name' => 'required|string|max:120',
@@ -48,8 +50,17 @@ class CommercialRequestController extends Controller
         ]);
 
         $admins = User::where('role', User::ROLE_ADMIN)->where('is_active', true)->get();
-        Notification::send($admins, new NewCommercialRequest($commercialRequest));
-        Notification::route('mail', $commercialRequest->email)->notify(new CommercialRequestReceived($commercialRequest));
+        // La solicitud ya quedó guardada: si el correo falla, se registra el error y el cliente
+        // igual recibe la confirmación (el equipo la ve en el panel).
+        try {
+            Notification::send($admins, new NewCommercialRequest($commercialRequest));
+            if ($commercialRequest->type === 'intencion_compra' && ($sales = config('arthub.sales_email'))) {
+                Notification::route('mail', $sales)->notify(new NewCommercialRequest($commercialRequest));
+            }
+            Notification::route('mail', $commercialRequest->email)->notify(new CommercialRequestReceived($commercialRequest));
+        } catch (Throwable $e) {
+            report($e);
+        }
 
         return response()->json([
             'message' => 'Recibimos tu solicitud. Te escribiremos pronto.',

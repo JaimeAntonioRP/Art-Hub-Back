@@ -21,9 +21,10 @@ class SeederTest extends TestCase
         $this->seed(DatabaseSeeder::class);
         $counts = [User::count(), Artist::count(), Artwork::count()];
 
-        // Solo la colección de ejemplo de Augusto: 1 artista y sus 19 obras.
-        $this->assertSame(['augusto-garcia-penalva'], Artist::pluck('slug')->all());
-        $this->assertSame(19, Artwork::count());
+        // La colección de ejemplo de Augusto (19 obras) y las 13 obras de muestra de dominio público.
+        $this->assertSame(1 + 13, Artist::count());
+        $this->assertSame(19, Artist::where('slug', 'augusto-garcia-penalva')->sole()->artworks()->count());
+        $this->assertSame(13, Artwork::where('is_sample', true)->count());
 
         $artwork = Artwork::first();
         $artwork->update(['price' => 1, 'title' => 'Título editado']);

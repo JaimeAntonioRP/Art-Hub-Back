@@ -24,4 +24,8 @@ return [
     // Minutos de validez del enlace firmado de un documento en R2.
     'document_link_minutes' => (int) env('DOCUMENT_LINK_MINUTES', 5),
 
+    // Buzón del equipo comercial: recibe cada solicitud de compra y cada venta registrada,
+    // con los datos del cliente. Vacío = no se envía.
+    'sales_email' => env('SALES_NOTIFY_EMAIL', 'info@arthub.com.pe'),
+
 ];

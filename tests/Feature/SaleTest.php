@@ -12,10 +12,13 @@ use App\Models\Artist;
 use App\Models\Artwork;
 use App\Models\Sale;
 use App\Models\User;
+use App\Notifications\SaleRegistered;
 use DomainException;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -68,6 +71,26 @@ class SaleTest extends TestCase
         $this->assertContains('disponibilidad_cambiada', $events);
         $event = $artwork->history()->where('type', 'venta_registrada')->sole();
         $this->assertSame(['fecha' => '2026-10-20'], $event->payload); // sin datos del comprador
+    }
+
+    public function test_the_sales_inbox_gets_each_sale_with_the_buyer_data(): void
+    {
+        Notification::fake();
+
+        $this->sale(Sale::TYPE_RESERVA);
+        Notification::assertNothingSent(); // una reserva no avisa
+
+        $sale = $this->sale(Sale::TYPE_VENTA, ['party_document' => '45678912', 'party_phone' => '999 111 222']);
+
+        Notification::assertSentTo(new AnonymousNotifiable, SaleRegistered::class, function (SaleRegistered $n, $channels, $notifiable) use ($sale) {
+            $text = collect($n->toMail($notifiable)->introLines)->implode(' ');
+
+            return $notifiable->routes['mail'] === 'info@arthub.com.pe'
+                && $n->sale->is($sale)
+                && str_contains($text, 'Lucía Quispe') && str_contains($text, '45678912')
+                && str_contains($text, 'lucia@example.com') && str_contains($text, '999 111 222')
+                && str_contains($text, '4,200');
+        });
     }
 
     public function test_reserve_then_sell_then_transfer(): void

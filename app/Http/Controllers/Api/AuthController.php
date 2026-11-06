@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Artist;
 use App\Models\User;
+use App\Notifications\VerifyClientEmail;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -49,6 +51,15 @@ class AuthController extends Controller
 
             return $user;
         });
+
+        // El cliente confirma su correo para ver sus solicitudes en «Mi cuenta».
+        if ($user->role === User::ROLE_COMPRADOR) {
+            try {
+                $user->notify(new VerifyClientEmail);
+            } catch (Throwable $e) {
+                report($e); // la cuenta ya está creada; puede pedir otro correo desde «Mi cuenta»
+            }
+        }
 
         return response()->json($this->session($user), 201);
     }
