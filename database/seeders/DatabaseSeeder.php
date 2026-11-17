@@ -108,7 +108,8 @@ class DatabaseSeeder extends Seeder
                 'year'         => $year,
                 'dimensions'   => $dimensions,
                 'image_url'    => '/obras/'.$slug.'.jpg',
-                'model_3d_url' => $has3d ? '/3d/'.$slug.'.glb' : null,
+                // El artista pidió retirar sus imágenes y modelos 3D: las fotos del sitio son genéricas.
+                'model_3d_url' => null,
                 'status'       => Artwork::STATUS_PUBLICADO,
                 'availability' => 'disponible',
             ]);

@@ -86,7 +86,7 @@ class SiteContentSeeder extends Seeder
                         'title' => 'Obras únicas del Cusco,',
                         'highlight' => 'para tu colección',
                         'text' => 'Pintura y escultura de artistas cusqueños, con ficha técnica y un código ArtHub para verificar cada obra.',
-                        'image_url' => '/obras/el-reposo-del-caminante.jpg',
+                        'image_url' => '/obras/portada-generica.jpg',
                         'primary_label' => 'Ver colección', 'primary_url' => '/obras',
                         'secondary_label' => 'Cómo comprar', 'secondary_url' => '/como-funciona',
                     ]),
@@ -123,7 +123,7 @@ class SiteContentSeeder extends Seeder
                         'title' => 'Del taller del artista',
                         'highlight' => 'al catálogo',
                         'text' => 'Cada obra se registra con su ficha y sus documentos, pasa por una revisión y recién entonces se publica.',
-                        'image_url' => '/obras/madre-cusquena.jpg',
+                        'image_url' => '/obras/portada-generica.jpg',
                         'primary_label' => 'Crear cuenta', 'primary_url' => '/registro',
                     ]),
                     $this->block('steps', [

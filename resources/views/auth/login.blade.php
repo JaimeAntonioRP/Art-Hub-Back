@@ -23,7 +23,7 @@
         }
         a { color: inherit; }
         .art {
-            position: relative; background: #0D1B2A url('{{ $frontend }}/obras/el-reposo-del-caminante.jpg') 70% center / cover no-repeat;
+            position: relative; background: #0D1B2A url('{{ $frontend }}/obras/portada-generica.jpg') 70% center / cover no-repeat;
         }
         .art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(13,27,42,.75), rgba(13,27,42,.1) 55%); }
         .art p {

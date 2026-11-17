@@ -251,7 +251,7 @@ final class PageBlocks
                     ->maxSize(8192),
                 TextInput::make("{$field}_url")
                     ->label("{$label} (URL o ruta, si no subes archivo)")
-                    ->placeholder('/obras/madre-cusquena.jpg'),
+                    ->placeholder('/obras/portada-generica.jpg'),
             ]),
         ];
     }
